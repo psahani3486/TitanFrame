@@ -35,28 +35,24 @@ Then visit **`http://localhost:8080`** in your browser.
 
 ## Deployment Guide (How to Deploy)
 
-TitanFrame Studio can be deployed to any cloud provider in under 2 minutes.
+TitanFrame Studio can be deployed to any cloud provider in under 2 minutes using Native Python runtime.
 
-### 1. Render.com (Recommended - 1 Click Free Cloud Hosting)
-1. Fork or push this repository to GitHub.
-2. Go to [Render.com](https://render.com) and click **New +** ➔ **Web Service**.
+### 1. Render.com / Heroku / Railway (Recommended)
+1. Push this repository to GitHub.
+2. Go to [Render.com](https://render.com) or Heroku/Railway and click **New +** ➔ **Web Service**.
 3. Connect your GitHub repository `TitanFrame`.
-4. Render will automatically detect `render.yaml` / `Dockerfile`.
-5. Click **Create Web Service**. Your Studio will be live at `https://titanframe.onrender.com`!
+4. Platform will automatically detect `Procfile` (`web: python run_ecom_dashboard.py`).
+5. Click **Create Web Service**. Your Studio will be live!
 
-### 2. Railway.app / Heroku
-1. Connect your GitHub repository to Railway or Heroku.
-2. The included `Procfile` (`web: python run_ecom_dashboard.py`) and `Dockerfile` will automatically configure port `8080`.
-
-### 3. Docker Container (Local / AWS EC2 / DigitalOcean)
-Build and run the production container:
+### 2. Local / VPS / AWS EC2
+Run directly with Python:
 
 ```bash
-# Build Docker image
-docker build -t titanframe-studio .
+# Install package and dependencies
+pip install -e .
 
-# Run container on port 8080
-docker run -d -p 8080:8080 --name titanframe titanframe-studio
+# Launch Studio Dashboard
+python run_ecom_dashboard.py
 ```
 
 Then visit `http://localhost:8080` or `http://<your-server-ip>:8080`.
