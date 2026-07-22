@@ -41,6 +41,7 @@ dev = [
     "mypy>=1.0",
     "ruff>=0.1.0",
     "black>=23.0",
+    "sqlalchemy>=2.0.0",
 ]
 docs = [
     "sphinx>=7.0",
@@ -63,4 +64,5 @@ warn_unused_configs = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 addopts = "-v --tb=short"
