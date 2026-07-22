@@ -15,7 +15,7 @@ class HashPartition(PartitionStrategy):
         self.key_columns = key_columns
 
     def partition(self, batch: pa.RecordBatch, num_partitions: int) -> List[pa.RecordBatch]:
-        if num_partitions <= 1 or batch.num_rows == 0:
+        if num_partitions <= 1 or batch.num_rows == 0 or not self.key_columns:
             return [batch]
         hashes = None
         for col_name in self.key_columns:
@@ -26,6 +26,8 @@ class HashPartition(PartitionStrategy):
                 h_vals = [abs(hash(val.as_py())) for val in arr]
                 h = pa.array(h_vals, type=pa.int64())
             hashes = h if hashes is None else (hashes + h)
+        if hashes is None:
+            return [batch]
         partition_indices = hashes % num_partitions
         results = []
         for p in range(num_partitions):
