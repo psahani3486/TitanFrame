@@ -15,7 +15,6 @@ def generate():
     discount = np.random.uniform(0.0, 0.1, size=NUM_ROWS)
     tax = np.random.uniform(0.0, 0.08, size=NUM_ROWS)
     
-    # Returnstatus: A, N, R
     returnflag = np.random.choice(['A', 'N', 'R'], size=NUM_ROWS)
     
     df = pd.DataFrame({
@@ -28,7 +27,6 @@ def generate():
         "l_returnflag": returnflag
     })
     
-    # Save to parquet and csv
     print("Saving to lineitem.parquet...")
     df.to_parquet("lineitem.parquet", engine="pyarrow")
     

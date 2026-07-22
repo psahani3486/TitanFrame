@@ -333,7 +333,6 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
             def _bench_task():
                 t0 = time.time()
                 try:
-                    # Run TitanFrame benchmark
                     tf_start = time.time()
                     target_p = target_dataset if os.path.isabs(target_dataset) else os.path.join(os.getcwd(), target_dataset)
                     if target_p.endswith(".parquet"):
@@ -352,7 +351,6 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
                     )
                     tf_dur = round(time.time() - tf_start, 3)
                     
-                    # Run Pandas benchmark
                     import pandas as pd
                     pd_start = time.time()
                     if target_p.endswith(".parquet"):
@@ -364,7 +362,6 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
                         p_res = pdf[pdf["l_discount"] > 0.05].groupby("l_returnflag")["l_quantity"].sum()
                     elif "price" in pdf.columns:
                         p_res = pdf[pdf["price"] > 10.0].groupby("brand")["price"].sum()
-                    # Run Polars benchmark if available, else estimate
                     try:
                         import polars as pl
                         pl_start = time.time()

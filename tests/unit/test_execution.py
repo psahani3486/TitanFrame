@@ -31,7 +31,6 @@ def test_scan_and_project(mock_parquet):
     schema = Schema({"id": Int64, "name": Utf8, "age": Int64})
     scan = Scan(mock_parquet, ScanFormat.PARQUET, schema)
     
-    # Select id, age + 5
     proj = Projection(scan, [col("id"), col("age") + lit(5)])
     
     planner = PhysicalPlanner()
@@ -49,7 +48,6 @@ def test_filter(mock_parquet):
     schema = Schema({"id": Int64, "name": Utf8, "age": Int64})
     scan = Scan(mock_parquet, ScanFormat.PARQUET, schema)
     
-    # Filter age > 30
     filt = Filter(scan, col("age") > lit(30))
     
     planner = PhysicalPlanner()
@@ -66,7 +64,6 @@ def test_limit(mock_parquet):
     schema = Schema({"id": Int64, "name": Utf8, "age": Int64})
     scan = Scan(mock_parquet, ScanFormat.PARQUET, schema)
     
-    # Limit 2 offset 1 -> should return [2, 3]
     limit = Limit(scan, limit=2, offset=1)
     
     planner = PhysicalPlanner()
@@ -85,26 +82,20 @@ def test_memory_limited_aggregation(mock_parquet):
     from titanframe.expr.agg_expr import sum_
     
     schema = Schema({"id": Int64, "name": Utf8, "age": Int64})
-    # Scan with small batch size to ensure multiple chunks
     scan = Scan(mock_parquet, ScanFormat.PARQUET, schema)
     
-    # Simple agg: sum(age) group by id
     agg = Aggregation(scan, [col("id")], [sum_(col("age"))])
     
     planner = PhysicalPlanner()
     phys_plan = planner.plan(agg)
     
-    # Extremely small budget to force spills during chunk collection
-    # A chunk of 5 rows is ~200 bytes, we set budget to 150 bytes
     manager = MemoryManager(budget_bytes=150)
-    # Set small batch_size so it actually breaks into multiple chunks
     ctx = ExecutionContext(batch_size=2, memory_manager=manager)
     
     scheduler = DAGScheduler()
     table = scheduler.execute(phys_plan, ctx)
     
     assert table is not None
-    # Just asserting it didn't crash and returned results
     assert table.num_rows == 5
     
     manager.cleanup()

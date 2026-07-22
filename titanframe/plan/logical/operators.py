@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from titanframe.core.dtypes import Float64, Int64, Utf8, Bool  # Default inference
+from titanframe.core.dtypes import Float64, Int64, Utf8, Bool
 from titanframe.core.schema import Schema
 from titanframe.expr.base import Expr, AliasExpr, AggExpr, CastExpr, BinaryExpr, UnaryExpr
 from titanframe.expr.column_expr import ColumnExpr
@@ -26,7 +26,6 @@ def _infer_expr_name(expr: Expr) -> str:
     if isinstance(expr, AggExpr):
         inner_name = _infer_expr_name(expr.child)
         return f"{expr.op.value}_{inner_name}"
-    # Fallback
     return repr(expr)
 
 
@@ -56,7 +55,7 @@ def _infer_expr_dtype(expr: Expr, input_schema: Schema):
         try:
             return promote(left_dt, right_dt)
         except TypeError:
-            return Float64  # Fallback
+            return Float64
     if isinstance(expr, UnaryExpr):
         from titanframe.expr.base import UnaryOp
         if expr.op in (UnaryOp.IS_NULL, UnaryOp.IS_NOT_NULL, UnaryOp.NOT):
@@ -71,9 +70,9 @@ def _infer_expr_dtype(expr: Expr, input_schema: Schema):
             return Float64
         if expr.op in (AggOp.ANY, AggOp.ALL):
             return Bool
-        return child_dt  # SUM, MIN, MAX, FIRST, LAST preserve type
+        return child_dt
 
-    return Float64  # Safe fallback
+    return Float64
 
 
 class Projection(LogicalPlan):
@@ -175,12 +174,10 @@ class Aggregation(LogicalPlan):
     def output_schema(self) -> Schema:
         input_schema = self.input.output_schema()
         fields = []
-        # Group keys come first
         for key in self.group_keys:
             name = _infer_expr_name(key)
             dtype = _infer_expr_dtype(key, input_schema)
             fields.append((name, dtype))
-        # Then aggregation results
         for agg in self.agg_exprs:
             name = _infer_expr_name(agg)
             dtype = _infer_expr_dtype(agg, input_schema)
@@ -232,7 +229,6 @@ class Join(LogicalPlan):
 
     def output_schema(self) -> Schema:
         left_schema = self.left.output_schema()
-        # For right schema, drop join keys to avoid duplication
         right_schema = self.right.output_schema().drop(self.on)
         return left_schema.merge(right_schema, suffix=self.suffix)
 

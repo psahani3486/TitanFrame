@@ -41,7 +41,6 @@ class DeviceBuffer:
         if self.tier == Tier.DISK:
             assert self._file_path is not None, "File path missing for DISK tier"
             
-            # Request memory from the manager before reloading
             self.manager.spill_if_needed(self.size_bytes)
             
             with pa.OSFile(str(self._file_path), 'rb') as f:
@@ -69,6 +68,5 @@ class DeviceBuffer:
             with ipc.RecordBatchStreamWriter(f, self._data.schema) as writer:
                 writer.write_batch(self._data)
                 
-        # Drop the reference so Python/PyArrow can garbage collect it
         self._data = None
         self.tier = Tier.DISK

@@ -22,7 +22,6 @@ class Union(LogicalPlan):
         if len(inputs) < 2:
             raise ValueError("Union requires at least two inputs.")
         self.inputs = inputs
-        # Ensure all inputs have the same schema structure
         base_schema = self.inputs[0].output_schema()
         for i, plan in enumerate(self.inputs[1:], 1):
             base_schema.assert_compatible(plan.output_schema())

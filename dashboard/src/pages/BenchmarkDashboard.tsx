@@ -97,7 +97,7 @@ export const BenchmarkDashboard: React.FC<BenchmarkDashboardProps> = ({ datasets
 
       {statusMsg && <div className="status-banner">Notice: {statusMsg}</div>}
 
-      {/* KPI Cards for Latest Benchmark */}
+      {}
       <div className="kpi-grid">
         <div className="kpi-card cyan">
           <div className="kpi-icon-badge">PERF</div>
@@ -144,9 +144,9 @@ export const BenchmarkDashboard: React.FC<BenchmarkDashboardProps> = ({ datasets
         </div>
       </div>
 
-      {/* Charts Grid */}
+      {}
       <div className="grid-2-col">
-        {/* Bar Chart: TitanFrame vs Polars vs Pandas */}
+        {}
         <div className="glass-panel chart-panel">
           <h3>Execution Time Comparison (Lower is Better)</h3>
           <div style={{ width: '100%', height: '320px' }}>
@@ -166,7 +166,7 @@ export const BenchmarkDashboard: React.FC<BenchmarkDashboardProps> = ({ datasets
           </div>
         </div>
 
-        {/* Line Chart: Speedup Timeline */}
+        {}
         <div className="glass-panel chart-panel">
           <h3>Speedup Factor Timeline (Higher is Better)</h3>
           <div style={{ width: '100%', height: '320px' }}>

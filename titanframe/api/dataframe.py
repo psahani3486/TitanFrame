@@ -59,7 +59,6 @@ class DataFrame:
         elif isinstance(data, Table):
             self._table = data
         else:
-            # Try Pandas
             try:
                 import pandas as pd
                 if isinstance(data, pd.DataFrame):
@@ -76,7 +75,6 @@ class DataFrame:
         df._table = table
         return df
 
-    # ---- Properties ----
 
     @property
     def schema(self) -> Schema:
@@ -113,7 +111,6 @@ class DataFrame:
     def __len__(self) -> int:
         return self.num_rows
 
-    # ---- Column access ----
 
     def __getitem__(self, key: str | list[str] | Series) -> Series | DataFrame:
         """
@@ -129,7 +126,6 @@ class DataFrame:
         elif isinstance(key, list):
             return DataFrame._from_table(self._table.select(key))
         elif isinstance(key, Series):
-            # Boolean mask filtering
             mask = key._to_combined_array()
             arrow_table = self._table.to_arrow()
             filtered = arrow_table.filter(mask)
@@ -146,23 +142,19 @@ class DataFrame:
             arr = pa.array(value)
             col_data = ChunkedColumn(key, from_arrow(arr.type), [arr])
         elif isinstance(value, (int, float, str, bool)):
-            # Scalar broadcast
             arr = pa.array([value] * self.num_rows)
             col_data = ChunkedColumn(key, from_arrow(arr.type), [arr])
         else:
             raise TypeError(f"Cannot set column from {type(value).__name__}")
 
-        # If column exists, drop it first, then append
         if key in self.columns:
             new_table = self._table.drop([key])
         else:
             new_table = self._table
 
-        # Rechunk to align
         col_data = col_data.rechunk(max(1, new_table.num_chunks))
         self._table = new_table.append_column(key, col_data)
 
-    # ---- Selection ----
 
     def select(self, *names: str | Expr) -> DataFrame:
         """
@@ -173,11 +165,9 @@ class DataFrame:
             >>> df.select("name", "age")
             >>> df.select(col("name"), (col("a") + col("b")).alias("sum"))
         """
-        # Simple case: all strings
         if all(isinstance(n, str) for n in names):
-            return DataFrame._from_table(self._table.select(list(names)))  # type: ignore
+            return DataFrame._from_table(self._table.select(list(names)))
 
-        # Expression-based select
         result_arrays: dict[str, pa.Array] = {}
         arrow_table = self._table.to_arrow()
         for expr_or_name in names:
@@ -205,11 +195,9 @@ class DataFrame:
         arrow_table = self._table.to_arrow()
         new_columns: dict[str, pa.Array] = {}
 
-        # Start with existing columns
         for name in self.columns:
             new_columns[name] = arrow_table.column(name).combine_chunks()
 
-        # Evaluate and add/replace
         for expr in exprs:
             name, arr = _eval_expr_on_table(expr, arrow_table)
             new_columns[name] = arr
@@ -224,7 +212,6 @@ class DataFrame:
         """Rename columns."""
         return DataFrame._from_table(self._table.rename(mapping))
 
-    # ---- Filtering ----
 
     def filter(self, expr: Expr) -> DataFrame:
         """
@@ -240,7 +227,6 @@ class DataFrame:
         filtered = arrow_table.filter(mask)
         return DataFrame._from_table(Table.from_arrow(filtered))
 
-    # ---- Aggregation ----
 
     def group_by(self, *keys: str | Expr) -> GroupBy:
         """
@@ -252,7 +238,6 @@ class DataFrame:
         """
         return GroupBy(self, keys)
 
-    # ---- Sorting ----
 
     def sort(self, by: str | list[str], descending: bool | list[bool] = False) -> DataFrame:
         """
@@ -278,7 +263,6 @@ class DataFrame:
         sorted_table = pc.take(arrow_table, indices)
         return DataFrame._from_table(Table.from_arrow(sorted_table))
 
-    # ---- Joins ----
 
     def join(
         self,
@@ -306,7 +290,6 @@ class DataFrame:
         left_table = self._table.to_arrow()
         right_table = other._table.to_arrow()
 
-        # Rename duplicate columns in right table
         right_rename = {}
         for col_name in right_table.column_names:
             if col_name in left_table.column_names and col_name not in on:
@@ -316,20 +299,18 @@ class DataFrame:
             new_names = [right_rename.get(n, n) for n in right_table.column_names]
             right_table = right_table.rename_columns(new_names)
 
-        # Map TitanFrame join types to pyarrow
         join_type_map = {
             "inner": "inner",
             "left": "left outer",
             "right": "right outer",
             "outer": "full outer",
-            "cross": "inner",  # cross join not directly supported; fallback
+            "cross": "inner",
         }
         pa_join_type = join_type_map.get(how, how)
 
         result = left_table.join(right_table, keys=on, join_type=pa_join_type)
         return DataFrame._from_table(Table.from_arrow(result))
 
-    # ---- Slicing ----
 
     def head(self, n: int = 5) -> DataFrame:
         """Return the first n rows."""
@@ -353,20 +334,17 @@ class DataFrame:
         sampled = pc.take(arrow_table, pa.array(sorted(indices)))
         return DataFrame._from_table(Table.from_arrow(sampled))
 
-    # ---- Deduplication ----
 
     def unique(self, subset: Optional[list[str]] = None) -> DataFrame:
         """Remove duplicate rows."""
         arrow_table = self._table.to_arrow()
         if subset:
-            # Group by subset columns, take first of each group
             grouped = arrow_table.group_by(subset)
             for name in arrow_table.column_names:
                 if name not in subset:
                     grouped = grouped.aggregate([(name, "first")])
             return DataFrame._from_table(Table.from_arrow(grouped))
         else:
-            # Full row dedup via pandas (Arrow doesn't have a native API)
             df_pd = arrow_table.to_pandas().drop_duplicates()
             return DataFrame._from_table(Table.from_pandas(df_pd))
 
@@ -376,7 +354,6 @@ class DataFrame:
         result = arrow_table.drop_null()
         return DataFrame._from_table(Table.from_arrow(result))
 
-    # ---- Null handling ----
 
     def fill_null(self, value: Any) -> DataFrame:
         """Fill null values across all columns."""
@@ -387,11 +364,10 @@ class DataFrame:
             try:
                 filled = pc.fill_null(col_arr, pa.scalar(value, type=col_arr.type))
             except (pa.ArrowInvalid, pa.ArrowNotImplementedError):
-                filled = col_arr  # Skip columns where the fill type doesn't match
+                filled = col_arr
             new_columns[name] = filled
         return DataFrame(pa.table(new_columns))
 
-    # ---- Statistics ----
 
     def describe(self) -> DataFrame:
         """
@@ -414,13 +390,11 @@ class DataFrame:
                 ]
         return DataFrame(stats)
 
-    # ---- Vertical operations ----
 
     def vstack(self, other: DataFrame) -> DataFrame:
         """Vertically concatenate another DataFrame."""
         return DataFrame._from_table(self._table.vstack(other._table))
 
-    # ---- Conversion ----
 
     def to_pandas(self) -> Any:
         """Convert to a Pandas DataFrame."""
@@ -450,7 +424,6 @@ class DataFrame:
         lf._materialized_data = self._table
         return lf
 
-    # ---- Pandas Compat ----
     
     def dropna(self, subset: Optional[list[str]] = None) -> DataFrame:
         return self.drop_nulls(subset)
@@ -491,7 +464,6 @@ class DataFrame:
         if self.num_rows == 0:
             return "\n".join(lines)
             
-        # Get head and tail
         max_rows = 10
         if self.num_rows <= max_rows:
             preview = self.to_pydict()
@@ -504,17 +476,14 @@ class DataFrame:
             n_disp = 10
             tail_idx = 5
             
-        # Format types
         types = [f"<{str(t)}>" for t in self.dtypes]
         
-        # Calculate column widths
         col_widths = {}
         for i, name in enumerate(self.columns):
             values = [str(v) for v in preview[name]]
             type_len = len(types[i])
             col_widths[name] = max(len(name), type_len, max((len(v) for v in values), default=0))
             
-        # Header
         header = " | ".join(name.ljust(col_widths[name]) for name in self.columns)
         type_row = " | ".join(types[i].ljust(col_widths[name]) for i, name in enumerate(self.columns))
         separator = "-+-".join("-" * col_widths[name] for name in self.columns)
@@ -524,7 +493,6 @@ class DataFrame:
         lines.append(f"| {type_row} |")
         lines.append(f"+-{separator}-+")
         
-        # Rows
         for i in range(n_disp):
             if i == tail_idx:
                 lines.append(f"| {'...'.center(len(header))} |")
@@ -542,7 +510,6 @@ class DataFrame:
         data = preview.to_pydict()
 
         html = ['<table style="border-collapse:collapse;">']
-        # Header
         html.append('<tr>')
         for name in self.columns:
             html.append(
@@ -550,7 +517,6 @@ class DataFrame:
                 f'background:#f5f5f5;font-weight:600;">{name}</th>'
             )
         html.append('</tr>')
-        # Type row
         html.append('<tr>')
         for dtype in self.dtypes:
             html.append(
@@ -558,7 +524,6 @@ class DataFrame:
                 f'color:#888;font-size:0.85em;">{dtype}</td>'
             )
         html.append('</tr>')
-        # Data rows
         n_rows = preview.num_rows
         for i in range(n_rows):
             html.append('<tr>')
@@ -578,9 +543,6 @@ class DataFrame:
         return "\n".join(html)
 
 
-# ---------------------------------------------------------------------------
-# Expression evaluator (eager — for DataFrame operations)
-# ---------------------------------------------------------------------------
 
 def _eval_expr_on_table(expr: Expr, table: pa.Table) -> tuple[str, pa.Array]:
     """
@@ -611,7 +573,6 @@ def _eval_expr_on_table(expr: Expr, table: pa.Table) -> tuple[str, pa.Array]:
         result = _apply_unary_op(expr.op, child)
         return repr(expr), result
 
-    # TryCastExpr is NOT a subclass of CastExpr — check it first
     from titanframe.expr.cast_expr import TryCastExpr
     if isinstance(expr, TryCastExpr):
         _, child = _eval_expr_on_table(expr.child, table)
@@ -627,12 +588,10 @@ def _eval_expr_on_table(expr: Expr, table: pa.Table) -> tuple[str, pa.Array]:
         return repr(expr), result
 
     if isinstance(expr, AggExpr):
-        # Handle QuantileExpr (subclass of AggExpr with a q parameter)
         from titanframe.expr.agg_expr import QuantileExpr
         if isinstance(expr, QuantileExpr):
             _, child = _eval_expr_on_table(expr.child, table)
             scalar = pc.quantile(child, q=expr.q)
-            # quantile returns an array of results; take the first
             q_val = scalar[0].as_py() if len(scalar) > 0 else None
             result = pa.array([q_val] * table.num_rows)
             return repr(expr), result
@@ -644,7 +603,6 @@ def _eval_expr_on_table(expr: Expr, table: pa.Table) -> tuple[str, pa.Array]:
     raise TypeError(f"Cannot evaluate expression type: {type(expr).__name__}")
 
 
-# ---- Op dispatch tables ----
 
 _BINARY_OPS = {
     Op.ADD: pc.add,
@@ -697,7 +655,6 @@ def _apply_unary_op(op: UnaryOp, arr: pa.Array) -> pa.Array:
     if op == UnaryOp.LOG:
         return pc.ln(arr)
     if op == UnaryOp.EXP:
-        # Arrow doesn't have exp; use a manual approach
         import numpy as np
         np_arr = arr.to_numpy(zero_copy_only=False)
         return pa.array(np.exp(np_arr))

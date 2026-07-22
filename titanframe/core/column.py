@@ -53,7 +53,6 @@ class ChunkedColumn:
         self._chunks: list[pa.Array] = list(chunks) if chunks else []
         self._null_count_cache: Optional[int] = None
 
-        # Validate chunk types
         for i, chunk in enumerate(self._chunks):
             chunk_dtype = from_arrow(chunk.type)
             if chunk_dtype != dtype:
@@ -62,7 +61,6 @@ class ChunkedColumn:
                     f"expects {dtype}"
                 )
 
-    # ---- Properties ----
 
     @property
     def name(self) -> str:
@@ -108,7 +106,6 @@ class ChunkedColumn:
         """The underlying Arrow array chunks (read-only view)."""
         return list(self._chunks)
 
-    # ---- Chunk operations ----
 
     def chunk(self, index: int) -> pa.Array:
         """Get a chunk by index."""
@@ -151,14 +148,12 @@ class ChunkedColumn:
         if len(self._chunks) <= target_chunks:
             return self
 
-        # Combine all chunks into a single ChunkedArray, then rechunk
         combined = pa.chunked_array(self._chunks)
 
         if target_chunks == 1:
             single = combined.combine_chunks()
             return ChunkedColumn(self._name, self._dtype, [single])
 
-        # For target > 1: split evenly
         total_rows = self.num_rows
         rows_per_chunk = (total_rows + target_chunks - 1) // target_chunks
         single = combined.combine_chunks()
@@ -210,7 +205,6 @@ class ChunkedColumn:
 
         return ChunkedColumn(self._name, self._dtype, new_chunks)
 
-    # ---- Conversion ----
 
     def to_pyarrow(self) -> pa.ChunkedArray:
         """Convert to a ``pyarrow.ChunkedArray``."""
@@ -238,7 +232,6 @@ class ChunkedColumn:
         """Return a new ChunkedColumn with a different name."""
         return ChunkedColumn(new_name, self._dtype, self._chunks)
 
-    # ---- Display ----
 
     def __repr__(self) -> str:
         return (

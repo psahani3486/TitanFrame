@@ -76,7 +76,6 @@ class LogicalPlan(ABC):
         """
         ...
 
-    # ---- Tree traversal ----
 
     def accept(self, visitor: PlanVisitor) -> Any:
         """
@@ -125,7 +124,6 @@ class LogicalPlan(ABC):
         """Total number of nodes in the plan tree."""
         return len(self.walk())
 
-    # ---- Display ----
 
     def display(self, indent: int = 0) -> str:
         """Pretty-print the plan tree."""

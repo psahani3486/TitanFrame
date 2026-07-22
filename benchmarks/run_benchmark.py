@@ -9,7 +9,6 @@ def run_pandas_benchmark():
     
     df = pd.read_parquet("lineitem.parquet")
     
-    # Q1-like: sum quantity and price per returnflag where discount > 0.05
     res = (
         df[df["l_discount"] > 0.05]
         .groupby("l_returnflag")
@@ -28,7 +27,6 @@ def run_titanframe_benchmark():
     print("Running TitanFrame Benchmark...")
     start = time.time()
     
-    # Lazy execution with predicate pushdown
     lf = tf.read_parquet("lineitem.parquet")
     
     res = (

@@ -109,7 +109,6 @@ class Chunk:
         self._device = device
         self._chunk_id = chunk_id
 
-    # ---- Properties ----
 
     @property
     def data(self) -> pa.RecordBatch:
@@ -155,7 +154,6 @@ class Chunk:
         """Column names in order."""
         return self._schema.names
 
-    # ---- Column access ----
 
     def column(self, name: str) -> pa.Array:
         """
@@ -177,7 +175,6 @@ class Chunk:
         """Get multiple columns by name."""
         return [self.column(name) for name in names]
 
-    # ---- Transformations (return new Chunk) ----
 
     def select(self, names: Sequence[str]) -> Chunk:
         """
@@ -222,7 +219,6 @@ class Chunk:
         """Return a new Chunk pointing to the same data but with a different device tag."""
         return Chunk(self._data, device, self._chunk_id)
 
-    # ---- Serialization ----
 
     def to_arrow(self) -> pa.RecordBatch:
         """Return the underlying Arrow RecordBatch."""
@@ -257,7 +253,6 @@ class Chunk:
         """Convert to a Python dictionary of lists."""
         return self._data.to_pydict()
 
-    # ---- Display ----
 
     def __repr__(self) -> str:
         return (

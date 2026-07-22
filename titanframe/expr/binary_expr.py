@@ -29,7 +29,6 @@ from titanframe.expr.base import (
     _wrap,
 )
 
-# Re-export for users importing from this module
 __all__ = [
     "BinaryExpr",
     "Op",
@@ -56,9 +55,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Operator classification
-# ---------------------------------------------------------------------------
 
 _ARITHMETIC_OPS = frozenset({
     Op.ADD, Op.SUB, Op.MUL, Op.TRUE_DIV, Op.FLOOR_DIV, Op.MOD, Op.POW,
@@ -88,9 +84,6 @@ def is_logical_op(op: Op) -> bool:
     return op in _LOGICAL_OPS
 
 
-# ---------------------------------------------------------------------------
-# Type inference for binary operations
-# ---------------------------------------------------------------------------
 
 def infer_binary_dtype(op: Op, left_dtype: DType, right_dtype: DType) -> DType:
     """
@@ -123,7 +116,6 @@ def infer_binary_dtype(op: Op, left_dtype: DType, right_dtype: DType) -> DType:
 
     if is_arithmetic_op(op):
         if op == Op.TRUE_DIV:
-            # Division always produces float
             if left_dtype.is_integer and right_dtype.is_integer:
                 return Float64
             return promote(left_dtype, right_dtype)
@@ -133,9 +125,6 @@ def infer_binary_dtype(op: Op, left_dtype: DType, right_dtype: DType) -> DType:
     raise TypeError(f"Cannot infer dtype for unknown op: {op}")
 
 
-# ---------------------------------------------------------------------------
-# Convenience factory functions
-# ---------------------------------------------------------------------------
 
 def _make_binary(op: Op, left: Any, right: Any) -> BinaryExpr:
     """Create a BinaryExpr, wrapping raw Python values into LiteralExpr."""

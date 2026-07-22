@@ -20,7 +20,6 @@ Submodules:
     - :mod:`udf_expr` — User-defined functions
 """
 
-# Core expression base and enums
 from titanframe.expr.base import (
     Expr,
     BinaryExpr,
@@ -35,11 +34,9 @@ from titanframe.expr.base import (
     SortOrder,
 )
 
-# Leaf expressions
 from titanframe.expr.column_expr import col, ColumnExpr
 from titanframe.expr.literal_expr import lit, LiteralExpr
 
-# Extended expression modules (convenience factories + type inference)
 from titanframe.expr.binary_expr import (
     add, sub, mul, true_div, floor_div, mod, pow_,
     eq, ne, lt, le, gt, ge,
@@ -66,26 +63,19 @@ from titanframe.expr.cast_expr import (
 )
 
 __all__ = [
-    # Base
     "Expr", "BinaryExpr", "UnaryExpr", "AggExpr", "CastExpr",
     "AliasExpr", "SortExpr",
     "Op", "UnaryOp", "AggOp", "SortOrder",
-    # Leaf
     "col", "ColumnExpr", "lit", "LiteralExpr",
-    # Binary factories
     "add", "sub", "mul", "true_div", "floor_div", "mod", "pow_",
     "eq", "ne", "lt", "le", "gt", "ge",
     "and_", "or_", "xor",
-    # Unary factories
     "neg", "not_", "abs_", "ceil", "floor", "sqrt", "log", "exp",
     "is_null", "is_not_null",
-    # Aggregation factories
     "sum_", "mean", "min_", "max_", "count", "count_distinct",
     "first", "last", "std", "var", "median", "quantile",
     "any_", "all_", "QuantileExpr",
-    # Cast factories
     "cast", "try_cast", "TryCastExpr", "validate_cast",
     "to_int64", "to_float64", "to_string", "to_bool",
-    # Type inference
     "infer_binary_dtype", "infer_unary_dtype", "infer_agg_dtype",
 ]

@@ -43,7 +43,6 @@ class QueryOptimizer:
             for rule in self.rules:
                 new_plan = rule.apply(new_plan)
                 
-            # Use .explain() which prints the full tree, instead of repr() which only prints the root
             if new_plan.explain() == current_plan.explain():
                 break
             current_plan = new_plan

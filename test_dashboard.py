@@ -2,14 +2,11 @@ import time
 import titanframe as tf
 
 def test_dashboard():
-    # Start the dashboard on port 8080 (in case 8000 is used)
     tf.start_dashboard(port=8080)
     
-    # Run a small query just to populate the active queries
     lf = tf.read_parquet("lineitem.parquet")
     
-    # We'll artificially set memory budget low to trigger spill in MemoryManager
-    tf.config.cpu_memory_limit = 10 * 1024 * 1024  # 10 MB limit
+    tf.config.cpu_memory_limit = 10 * 1024 * 1024
     
     print("Running query...")
     try:
@@ -30,7 +27,6 @@ def test_dashboard():
     print("Dashboard is still running. Visit http://localhost:8080", flush=True)
     print("Keeping the server alive for 1 hour so you can check the UI...", flush=True)
     
-    # We will poll instead of a single 3600s sleep to keep the main thread active
     for _ in range(3600):
         time.sleep(1)
     

@@ -29,8 +29,8 @@ from titanframe.expr.base import Expr
 
 class UDFType(enum.Enum):
     """Type of user-defined function."""
-    SCALAR = "scalar"          # Applied element-wise (Python scalar → scalar)
-    VECTORIZED = "vectorized"  # Applied to Arrow arrays (batch → batch)
+    SCALAR = "scalar"
+    VECTORIZED = "vectorized"
 
 
 class UDFExpr(Expr):
@@ -77,7 +77,6 @@ class UDFExpr(Expr):
         )
 
     def __hash__(self) -> int:
-        # UDFs are identified by their function identity + child
         return hash(("udf", id(self.func), self.child, self.udf_type))
 
 

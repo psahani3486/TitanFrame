@@ -56,7 +56,6 @@ class Schema:
         else:
             self._fields = OrderedDict(fields)
 
-    # ---- Properties ----
 
     @property
     def names(self) -> list[str]:
@@ -73,7 +72,6 @@ class Schema:
         """Number of columns."""
         return len(self._fields)
 
-    # ---- Lookups ----
 
     def __getitem__(self, name: str) -> DType:
         """Get the DType for a column by name."""
@@ -136,7 +134,6 @@ class Schema:
         name = self.names[index]
         return name, self._fields[name]
 
-    # ---- Algebra ----
 
     def select(self, names: Sequence[str]) -> Schema:
         """
@@ -231,7 +228,6 @@ class Schema:
         fields[name] = dtype
         return Schema(fields)
 
-    # ---- Validation ----
 
     def is_compatible(self, other: Schema) -> bool:
         """
@@ -261,14 +257,12 @@ class Schema:
 
         prefix = f" during {context}" if context else ""
 
-        # Check column count
         if len(self) != len(other):
             raise SchemaError(
                 f"Schema mismatch{prefix}: "
                 f"left has {len(self)} columns, right has {len(other)} columns"
             )
 
-        # Check each column
         for (l_name, l_dtype), (r_name, r_dtype) in zip(
             self._fields.items(), other._fields.items()
         ):
@@ -283,7 +277,6 @@ class Schema:
                     f"column {l_name!r} type {l_dtype} (left) != {r_dtype} (right)"
                 )
 
-    # ---- Arrow interop ----
 
     def to_arrow(self) -> pa.Schema:
         """Convert to a ``pyarrow.Schema``."""
@@ -308,7 +301,6 @@ class Schema:
             fields[field.name] = from_arrow(field.type)
         return cls(fields)
 
-    # ---- Convenience constructors ----
 
     @classmethod
     def from_dict(cls, data: dict[str, list[Any]]) -> Schema:

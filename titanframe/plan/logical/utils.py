@@ -37,7 +37,6 @@ def infer_expr_name(expr: Expr) -> str:
     if isinstance(expr, AggExpr):
         inner_name = infer_expr_name(expr.child)
         return f"{expr.op.value}_{inner_name}"
-    # Fallback
     return repr(expr)
 
 
@@ -73,7 +72,7 @@ def infer_expr_dtype(expr: Expr, input_schema: Schema) -> DType:
         try:
             return promote(left_dt, right_dt)
         except TypeError:
-            return Float64  # Fallback
+            return Float64
     if isinstance(expr, UnaryExpr):
         if expr.op in (UnaryOp.IS_NULL, UnaryOp.IS_NOT_NULL, UnaryOp.NOT):
             return Bool
@@ -86,11 +85,10 @@ def infer_expr_dtype(expr: Expr, input_schema: Schema) -> DType:
             return Float64
         if expr.op in (AggOp.ANY, AggOp.ALL):
             return Bool
-        return child_dt  # SUM, MIN, MAX, FIRST, LAST preserve type
+        return child_dt
 
-    # Check TryCastExpr
     from titanframe.expr.cast_expr import TryCastExpr
     if isinstance(expr, TryCastExpr):
         return expr.target_dtype
 
-    return Float64  # Safe fallback
+    return Float64

@@ -24,13 +24,9 @@ def test_parquet_roundtrip(sample_table):
     with tempfile.TemporaryDirectory() as tmpdir:
         path = os.path.join(tmpdir, "test.parquet")
         
-        # Write
-        # Using pyarrow directly for write to mock the 'df' since our write_parquet expects a df with _get_physical_plan
-        # Actually, let's just create a mock dataframe wrapper or use pyarrow to write and then test read_parquet
         import pyarrow.parquet as pq
         pq.write_table(sample_table, path)
         
-        # Read
         scan_plan = read_parquet(path)
         assert isinstance(scan_plan, Scan)
         assert scan_plan.format == ScanFormat.PARQUET
@@ -49,13 +45,11 @@ def test_json_roundtrip(sample_table):
     with tempfile.TemporaryDirectory() as tmpdir:
         path = os.path.join(tmpdir, "test.json")
         
-        # Write using standard pyarrow json if possible, or standard json
         import json
         with open(path, 'w') as f:
             for row in sample_table.to_pylist():
                 f.write(json.dumps(row) + "\n")
                 
-        # Read
         scan_plan = read_json(path)
         assert isinstance(scan_plan, Scan)
         assert scan_plan.format == ScanFormat.JSON
@@ -83,7 +77,6 @@ def test_sql_roundtrip(sample_table):
             df.to_sql("users", conn, index=False)
         engine.dispose()
             
-        # Read
         scan_plan = read_sql("users", uri)
         assert isinstance(scan_plan, Scan)
         assert scan_plan.format == ScanFormat.SQL

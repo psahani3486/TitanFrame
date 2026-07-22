@@ -23,7 +23,6 @@ class LimitExec(PhysicalPlan):
         for chunk in self.input.execute(context):
             batch = chunk.data
             
-            # Apply offset
             if rows_skipped < self.offset:
                 to_skip = min(self.offset - rows_skipped, batch.num_rows)
                 rows_skipped += to_skip
@@ -31,7 +30,6 @@ class LimitExec(PhysicalPlan):
                     continue
                 batch = batch.slice(to_skip, batch.num_rows - to_skip)
                 
-            # Apply limit
             if self.limit is not None:
                 remaining = self.limit - rows_yielded
                 if remaining <= 0:

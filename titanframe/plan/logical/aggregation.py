@@ -51,12 +51,10 @@ class Aggregation(LogicalPlan):
     def output_schema(self) -> Schema:
         input_schema = self.input.output_schema()
         fields = []
-        # Group keys come first
         for key in self.group_keys:
             name = infer_expr_name(key)
             dtype = infer_expr_dtype(key, input_schema)
             fields.append((name, dtype))
-        # Then aggregation results
         for agg in self.agg_exprs:
             name = infer_expr_name(agg)
             dtype = infer_expr_dtype(agg, input_schema)

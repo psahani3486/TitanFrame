@@ -115,7 +115,7 @@ def test_union_node(scan_node):
 
 
 def test_union_schema_mismatch_raises(scan_node):
-    schema2 = Schema({"id": Int64, "name": Utf8})  # missing columns
+    schema2 = Schema({"id": Int64, "name": Utf8})
     scan2 = Scan("users2.parquet", ScanFormat.PARQUET, schema2)
     
     with pytest.raises(SchemaError, match="Schema mismatch"):

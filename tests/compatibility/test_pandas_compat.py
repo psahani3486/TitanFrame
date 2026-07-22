@@ -25,8 +25,6 @@ def test_compat_select_filter(pandas_df, tf_df):
 
 def test_compat_fillna(pandas_df, tf_df):
     pd_res = pandas_df.fillna(0).reset_index(drop=True)
-    # tf fill_null fills everything with same value for now, which might fail on strings if value is int
-    # Actually wait, we should test it on numeric columns
     pd_res_num = pandas_df[["A", "B"]].fillna(0).reset_index(drop=True)
     tf_res_num = tf_df.select("A", "B").fillna(0).to_pandas()
     pd.testing.assert_frame_equal(pd_res_num, tf_res_num, check_dtype=False)
@@ -48,6 +46,5 @@ def test_compat_merge(pandas_df, tf_df):
     pd_res = pd.merge(pandas_df, df2_pd, on="A", how="inner").reset_index(drop=True)
     tf_res = tf_df.merge(df2_tf, on=["A"], how="inner").to_pandas()
     
-    # Sort columns to match
     tf_res = tf_res[pd_res.columns]
     pd.testing.assert_frame_equal(pd_res, tf_res)

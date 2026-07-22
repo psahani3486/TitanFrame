@@ -46,16 +46,14 @@ def infer_csv_schema(
         Inferred :class:`Schema`.
     """
     parse_options = pcsv.ParseOptions(delimiter=delimiter)
-    read_options = pcsv.ReadOptions(block_size=1024 * 1024)  # 1MB blocks
+    read_options = pcsv.ReadOptions(block_size=1024 * 1024)
 
-    # Read a small sample for inference
     reader = pcsv.open_csv(
         str(path),
         parse_options=parse_options,
         read_options=read_options,
     )
 
-    # Read first batch to get schema
     first_batch = next(reader)
     arrow_schema = first_batch.schema
     return Schema.from_arrow(arrow_schema)
@@ -95,25 +93,21 @@ def read_csv_to_table(
     """
     path = str(path)
 
-    # Configure parsing
     parse_options = pcsv.ParseOptions(delimiter=delimiter)
 
-    # Configure reading
     read_options = pcsv.ReadOptions(
         skip_rows=skip_rows,
-        block_size=max(chunk_size * 256, 1024 * 1024),  # Minimum 1MB blocks
+        block_size=max(chunk_size * 256, 1024 * 1024),
     )
     if not has_header:
         read_options.autogenerate_column_names = True
 
-    # Configure conversion
     convert_options = pcsv.ConvertOptions()
     if columns:
         convert_options.include_columns = list(columns)
     if null_values:
         convert_options.null_values = null_values
 
-    # Read the full table via pyarrow (handles chunking internally)
     arrow_table = pcsv.read_csv(
         path,
         parse_options=parse_options,
@@ -121,7 +115,6 @@ def read_csv_to_table(
         convert_options=convert_options,
     )
 
-    # Convert to TitanFrame Table with specified chunk size
     return Table.from_arrow(arrow_table, chunk_size=chunk_size)
 
 
@@ -161,8 +154,6 @@ def read_csv_streaming(
     )
 
     for batch in reader:
-        # PyArrow CSV reader may produce batches of varying size;
-        # split into uniform chunks if needed
         offset = 0
         while offset < batch.num_rows:
             length = min(chunk_size, batch.num_rows - offset)

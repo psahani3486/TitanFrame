@@ -36,13 +36,9 @@ if TYPE_CHECKING:
     pass
 
 
-# ---------------------------------------------------------------------------
-# Operators
-# ---------------------------------------------------------------------------
 
 class Op(enum.Enum):
     """Binary operators."""
-    # Arithmetic
     ADD = "+"
     SUB = "-"
     MUL = "*"
@@ -51,7 +47,6 @@ class Op(enum.Enum):
     MOD = "%"
     POW = "**"
 
-    # Comparison
     EQ = "=="
     NE = "!="
     LT = "<"
@@ -59,7 +54,6 @@ class Op(enum.Enum):
     GT = ">"
     GE = ">="
 
-    # Logical
     AND = "&"
     OR = "|"
     XOR = "^"
@@ -103,9 +97,6 @@ class SortOrder(enum.Enum):
     DESC = "desc"
 
 
-# ---------------------------------------------------------------------------
-# Expr — abstract base
-# ---------------------------------------------------------------------------
 
 class Expr(ABC):
     """
@@ -131,7 +122,6 @@ class Expr(ABC):
     def __repr__(self) -> str:
         return self.display()
 
-    # ---- Column references used by this expression ----
 
     def required_columns(self) -> set[str]:
         """
@@ -148,7 +138,6 @@ class Expr(ABC):
         for child in self.children():
             child._collect_columns(out)
 
-    # ---- Tree walking ----
 
     def walk(self) -> list[Expr]:
         """Return all nodes in this expression tree (pre-order DFS)."""
@@ -172,8 +161,6 @@ class Expr(ABC):
         """Return a copy of this node with replaced children."""
         ...
 
-    # ---- Python operator overloads ----
-    # These let users write ``col("a") + 1`` naturally.
 
     def __add__(self, other: Any) -> Expr:
         return BinaryExpr(Op.ADD, self, _wrap(other))
@@ -217,11 +204,10 @@ class Expr(ABC):
     def __rpow__(self, other: Any) -> Expr:
         return BinaryExpr(Op.POW, _wrap(other), self)
 
-    # Comparison
-    def __eq__(self, other: Any) -> Expr:  # type: ignore[override]
+    def __eq__(self, other: Any) -> Expr:
         return BinaryExpr(Op.EQ, self, _wrap(other))
 
-    def __ne__(self, other: Any) -> Expr:  # type: ignore[override]
+    def __ne__(self, other: Any) -> Expr:
         return BinaryExpr(Op.NE, self, _wrap(other))
 
     def __lt__(self, other: Any) -> Expr:
@@ -236,7 +222,6 @@ class Expr(ABC):
     def __ge__(self, other: Any) -> Expr:
         return BinaryExpr(Op.GE, self, _wrap(other))
 
-    # Logical
     def __and__(self, other: Any) -> Expr:
         return BinaryExpr(Op.AND, self, _wrap(other))
 
@@ -255,7 +240,6 @@ class Expr(ABC):
     def __rxor__(self, other: Any) -> Expr:
         return BinaryExpr(Op.XOR, _wrap(other), self)
 
-    # Unary
     def __neg__(self) -> Expr:
         return UnaryExpr(UnaryOp.NEG, self)
 
@@ -265,7 +249,6 @@ class Expr(ABC):
     def __abs__(self) -> Expr:
         return UnaryExpr(UnaryOp.ABS, self)
 
-    # ---- Convenience methods ----
 
     def alias(self, name: str) -> Expr:
         """Give this expression an output name."""
@@ -301,7 +284,6 @@ class Expr(ABC):
     def floor(self) -> Expr:
         return UnaryExpr(UnaryOp.FLOOR, self)
 
-    # ---- Aggregation methods ----
 
     def sum(self) -> Expr:
         """Sum aggregation."""
@@ -347,7 +329,6 @@ class Expr(ABC):
         """Median value."""
         return AggExpr(AggOp.MEDIAN, self)
 
-    # ---- String accessor ----
 
     @property
     def str(self) -> Any:
@@ -362,7 +343,6 @@ class Expr(ABC):
         from titanframe.expr.string_expr import StringAccessor
         return StringAccessor(self)
 
-    # ---- Datetime accessor ----
 
     @property
     def dt(self) -> Any:
@@ -377,7 +357,6 @@ class Expr(ABC):
         from titanframe.expr.datetime_expr import DatetimeAccessor
         return DatetimeAccessor(self)
 
-    # ---- Window accessor ----
 
     @property
     def window(self) -> Any:
@@ -406,14 +385,12 @@ class Expr(ABC):
 
         parts = [_col(p) if isinstance(p, str) else p for p in partition_by]
 
-        # Determine if this is already an agg expression
         if isinstance(self, AggExpr):
             return WindowExpr(
                 self.child, partition_by=parts, agg_op=self.op,
             )
         return WindowExpr(self, partition_by=parts)
 
-    # ---- UDF methods ----
 
     def map(self, func: Any, return_dtype: Optional[DType] = None) -> Expr:
         """
@@ -437,7 +414,6 @@ class Expr(ABC):
         from titanframe.expr.udf_expr import UDFExpr, UDFType
         return UDFExpr(self, func, UDFType.VECTORIZED, return_dtype)
 
-    # ---- Sort ----
 
     def asc(self) -> SortExpr:
         """Sort ascending."""
@@ -447,16 +423,12 @@ class Expr(ABC):
         """Sort descending."""
         return SortExpr(self, SortOrder.DESC)
 
-    # ---- Hash (for CSE detection) ----
 
     @abstractmethod
     def __hash__(self) -> int:
         ...
 
 
-# ---------------------------------------------------------------------------
-# Concrete expression nodes
-# ---------------------------------------------------------------------------
 
 class BinaryExpr(Expr):
     """Binary operation: ``left OP right``."""
@@ -591,9 +563,6 @@ class SortExpr(Expr):
         return hash(("sort", self.child, self.order))
 
 
-# ---------------------------------------------------------------------------
-# Helper
-# ---------------------------------------------------------------------------
 
 def _wrap(value: Any) -> Expr:
     """
@@ -604,6 +573,5 @@ def _wrap(value: Any) -> Expr:
     """
     if isinstance(value, Expr):
         return value
-    # Import here to avoid circular dependency
     from titanframe.expr.literal_expr import lit
     return lit(value)

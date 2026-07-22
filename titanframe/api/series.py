@@ -70,7 +70,6 @@ class Series:
         else:
             raise TypeError(f"Cannot construct Series from {type(data).__name__}")
 
-    # ---- Properties ----
 
     @property
     def name(self) -> str:
@@ -103,7 +102,6 @@ class Series:
     def __len__(self) -> int:
         return self.num_rows
 
-    # ---- Internal ----
 
     @property
     def _chunked_column(self) -> ChunkedColumn:
@@ -115,7 +113,6 @@ class Series:
     def _to_combined_array(self) -> pa.Array:
         return self._to_chunked_array().combine_chunks()
 
-    # ---- Aggregations (eager — compute immediately) ----
 
     def sum(self) -> Any:
         return pc.sum(self._to_chunked_array()).as_py()
@@ -158,7 +155,6 @@ class Series:
             for item in result.to_pylist()
         }
 
-    # ---- Element-wise operations (return new Series) ----
 
     def __add__(self, other: Any) -> Series:
         return self._binary_op(pc.add, other)
@@ -184,7 +180,6 @@ class Series:
     def __mod__(self, other: Any) -> Series:
         arr = self._to_combined_array()
         other_arr = self._scalar_or_array(other)
-        # Arrow doesn't have modulo; compute manually
         div_result = pc.divide(arr, other_arr)
         mul_result = pc.multiply(div_result, other_arr)
         result = pc.subtract(arr, mul_result)
@@ -196,11 +191,10 @@ class Series:
     def __abs__(self) -> Series:
         return Series(self.name, pc.abs(self._to_combined_array()))
 
-    # Comparison
-    def __eq__(self, other: Any) -> Series:  # type: ignore[override]
+    def __eq__(self, other: Any) -> Series:
         return self._binary_op(pc.equal, other)
 
-    def __ne__(self, other: Any) -> Series:  # type: ignore[override]
+    def __ne__(self, other: Any) -> Series:
         return self._binary_op(pc.not_equal, other)
 
     def __lt__(self, other: Any) -> Series:
@@ -215,7 +209,6 @@ class Series:
     def __ge__(self, other: Any) -> Series:
         return self._binary_op(pc.greater_equal, other)
 
-    # Logical
     def __and__(self, other: Any) -> Series:
         return self._binary_op(pc.and_, other)
 
@@ -225,7 +218,6 @@ class Series:
     def __invert__(self) -> Series:
         return Series(self.name, pc.invert(self._to_combined_array()))
 
-    # ---- Null handling ----
 
     def is_null(self) -> Series:
         return Series(self.name, pc.is_null(self._to_combined_array()))
@@ -245,7 +237,6 @@ class Series:
     def drop_null(self) -> Series:
         return Series(self.name, pc.drop_null(self._to_combined_array()))
 
-    # ---- Type operations ----
 
     def cast(self, dtype: DType) -> Series:
         result = pc.cast(self._to_combined_array(), dtype.arrow_type)
@@ -254,7 +245,6 @@ class Series:
     def rename(self, name: str) -> Series:
         return Series(name, self._column.rename(name))
 
-    # ---- Sorting ----
 
     def sort(self, descending: bool = False) -> Series:
         order = "descending" if descending else "ascending"
@@ -268,7 +258,6 @@ class Series:
         indices = pc.sort_indices(self._to_combined_array(), sort_keys=[(self.name, order)])
         return Series(f"{self.name}_argsort", indices)
 
-    # ---- Unique / Duplicate ----
 
     def unique(self) -> Series:
         result = pc.unique(self._to_combined_array())
@@ -283,7 +272,6 @@ class Series:
         result = pa.array([v in dup_values for v in self.to_list()])
         return Series(self.name, result)
 
-    # ---- Conversion ----
 
     def to_list(self) -> list[Any]:
         return self._column.to_pylist()
@@ -294,7 +282,6 @@ class Series:
     def to_pandas(self) -> Any:
         return self._to_chunked_array().to_pandas()
 
-    # ---- Indexing ----
 
     def __getitem__(self, key: Any) -> Any:
         arr = self._to_combined_array()
@@ -309,7 +296,6 @@ class Series:
                 result = arr.slice(start, stop - start)
             return Series(self.name, result)
         if isinstance(key, Series):
-            # Boolean mask
             mask = key._to_combined_array()
             result = pc.filter(arr, mask)
             return Series(self.name, result)
@@ -321,14 +307,12 @@ class Series:
     def tail(self, n: int = 5) -> Series:
         return self[-n:]
 
-    # ---- String accessor ----
 
     @property
     def str(self) -> SeriesStringAccessor:
         """Access string operations."""
         return SeriesStringAccessor(self)
 
-    # ---- Helpers ----
 
     def _scalar_or_array(self, other: Any) -> Any:
         if isinstance(other, Series):
@@ -344,7 +328,6 @@ class Series:
             result = fn(arr, other_val)
         return Series(self.name, result)
 
-    # ---- Display ----
 
     def __repr__(self) -> str:
         values = self.to_list()
@@ -358,9 +341,6 @@ class Series:
         return "\n".join(lines)
 
 
-# ---------------------------------------------------------------------------
-# String accessor for eager Series
-# ---------------------------------------------------------------------------
 
 class SeriesStringAccessor:
     """String operations on an eager Series (uses pyarrow.compute)."""

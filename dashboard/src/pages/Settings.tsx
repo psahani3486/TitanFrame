@@ -18,7 +18,7 @@ export const Settings: React.FC<SettingsProps> = ({ telemetry }) => {
   const [gpuToggle, setGpuToggle] = useState<boolean>(false);
   const [optimizerToggle, setOptimizerToggle] = useState<boolean>(true);
 
-  // Advanced settings state
+
   const [numThreads, setNumThreads] = useState<number>(16);
   const [simdToggle, setSimdToggle] = useState<boolean>(true);
   const [arrowBufferKB, setArrowBufferKB] = useState<number>(512);
@@ -91,7 +91,7 @@ export const Settings: React.FC<SettingsProps> = ({ telemetry }) => {
       </div>
 
       <div className="settings-grid">
-        {/* Left: Configuration Form */}
+        {}
         <div className="glass-panel settings-panel">
           {activeSubTab === 'general' ? (
             <>
@@ -215,7 +215,7 @@ export const Settings: React.FC<SettingsProps> = ({ telemetry }) => {
           </button>
         </div>
 
-        {/* Right: System & Cluster Environment */}
+        {}
         <div className="glass-panel sysinfo-panel">
           <h3>Environment & Cluster Info</h3>
 

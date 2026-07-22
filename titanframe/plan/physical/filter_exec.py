@@ -24,7 +24,6 @@ class FilterExec(PhysicalPlan):
         for chunk in self.input.execute(context):
             mask = self.evaluator.eval(self.predicate, chunk)
             
-            # Use pc.filter to drop rows where mask is False or null
             filtered_batch = pc.filter(chunk.data, mask)
             if filtered_batch.num_rows > 0:
                 yield Chunk(filtered_batch)

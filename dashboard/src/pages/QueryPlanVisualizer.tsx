@@ -26,7 +26,7 @@ interface CustomNodeData {
   onSelectNode: (info: any) => void;
 }
 
-// Custom Glass Node Component with Interactive Hover & Click Inspector
+
 const CustomPlanNode = ({ data }: { data: CustomNodeData }) => {
   const typeBadgeText =
     data.nodeType === 'scan' ? 'SCAN' : data.nodeType === 'filter' ? 'FILTER' : data.nodeType === 'agg' ? 'AGG' : 'SINK';

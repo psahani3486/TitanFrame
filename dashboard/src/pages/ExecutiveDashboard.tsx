@@ -52,7 +52,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
 
   return (
     <div className="page-container executive-page">
-      {/* Page Header */}
+      {}
       <div className="page-header">
         <div>
           <h1 className="page-title">Executive Dashboard</h1>
@@ -67,14 +67,14 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       </div>
 
-      {/* Live Query Execution Pipeline Animation Banner */}
+      {}
       <LivePipelineAnimation
         activeStageIdx={metrics?.active_pipeline_stage || 0}
         currentStageName={metrics?.current_stage || 'Engine Ready'}
         rowsPerSec={metrics?.rows_per_sec || 0}
       />
 
-      {/* Top 4 KPI Cards */}
+      {}
       <div className="kpi-grid">
         <div className="kpi-card violet">
           <div className="kpi-icon-badge">QRY</div>
@@ -117,7 +117,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       </div>
 
-      {/* Graphs Row: RAM Timeline + Query Throughput */}
+      {}
       <div className="grid-2-col" style={{ marginBottom: '1.5rem' }}>
         <div className="glass-panel">
           <div className="panel-header">
@@ -156,9 +156,9 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       </div>
 
-      {/* Main Grid: Memory Details + Recent Queries */}
+      {}
       <div className="grid-2-col">
-        {/* RAM & Memory Gauge Card */}
+        {}
         <div className="glass-panel">
           <div className="panel-header">
             <h3>Host Memory & NVMe Spilling</h3>
@@ -207,7 +207,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
           </div>
         </div>
 
-        {/* Recent Queries Activity */}
+        {}
         <div className="glass-panel">
           <div className="panel-header">
             <h3>Recent Pipeline Queries</h3>
@@ -239,7 +239,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         </div>
       </div>
 
-      {/* Datasets Quick Launch Row */}
+      {}
       <div className="glass-panel" style={{ marginTop: '1.5rem' }}>
         <div className="panel-header">
           <h3>Workspace Datasets Overview</h3>

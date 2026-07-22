@@ -23,9 +23,6 @@ from titanframe.core.table import Table
 from titanframe.plan.logical.scan import Scan, ScanFormat
 
 
-# ---------------------------------------------------------------------------
-# I/O functions
-# ---------------------------------------------------------------------------
 
 def read_csv(
     path: str,
@@ -115,9 +112,6 @@ def scan_ipc(path: str) -> LazyFrame:
     return LazyFrame(scan)
 
 
-# ---------------------------------------------------------------------------
-# DataFrame construction
-# ---------------------------------------------------------------------------
 
 def from_dict(data: dict[str, list]) -> DataFrame:
     """
@@ -140,9 +134,6 @@ def from_pandas(df: Any) -> DataFrame:
     return DataFrame(df)
 
 
-# ---------------------------------------------------------------------------
-# Combining DataFrames
-# ---------------------------------------------------------------------------
 
 def concat(
     dfs: Sequence[DataFrame],
@@ -173,7 +164,6 @@ def concat(
     elif how == "horizontal":
         import pyarrow as pa
         tables = [df.to_arrow() for df in dfs]
-        # Combine columns
         all_columns: dict[str, Any] = {}
         for table in tables:
             for name in table.column_names:

@@ -3,7 +3,7 @@ import time
 from typing import Dict, Any, Optional
 
 try:
-    import cupy as cp  # type: ignore
+    import cupy as cp
 except ImportError:
     cp = None
 
@@ -18,7 +18,6 @@ def serialize_plan(plan: Any) -> dict:
                 for child in child_list:
                     children.append(serialize_plan(child))
             
-    # Include some details if available
     details = ""
     if hasattr(plan, "file_path"):
         details = str(plan.file_path)
@@ -40,29 +39,24 @@ class TelemetryTracker:
     def __init__(self):
         self.lock = threading.Lock()
         
-        # Memory stats
         self.ram_allocated_bytes = 0
         self.spill_allocated_bytes = 0
         self.spill_events_count = 0
-        self.recent_spills = []  # List of dicts with timestamp, size
+        self.recent_spills = []
         
-        # Query stats
         self.active_queries: Dict[str, Dict[str, Any]] = {}
         
-        # Limits
         self.ram_budget_bytes = 0
         self.spill_budget_bytes = 0
 
-        # Query results cache: query_id -> {columns: [...], rows: [...], row_count: int, duration_sec: float}
         self.query_results: Dict[str, Dict[str, Any]] = {}
         self.query_logs: Dict[str, list] = {}
         self.benchmark_history: list = []
         
-        # Live Time-Series & Pipeline State
-        self.ram_timeline: list = []  # List of { timestamp, ram_mb, gpu_mb, throughput }
+        self.ram_timeline: list = []
         self.current_stage: str = "Idle"
         self.rows_per_sec: float = 0.0
-        self.active_pipeline_stage: int = 0  # 0: Idle, 1: Scan, 2: Projection, 3: Filter, 4: Agg, 5: Output
+        self.active_pipeline_stage: int = 0
 
     def _push_timeline_point(self):
         ram_mb = round(self.ram_allocated_bytes / (1024 * 1024), 2)
@@ -99,7 +93,6 @@ class TelemetryTracker:
             self.spill_budget_bytes = spill
 
     def _get_gpu_memory(self):
-        # Return active GPU VRAM allocation (512 MB active / 8 GB total HBM)
         import titanframe.api.config as cfg
         if getattr(cfg.config, "gpu_enabled", False):
             return 512 * 1024 * 1024, 8 * 1024 * 1024 * 1024
@@ -187,7 +180,6 @@ class TelemetryTracker:
         with self.lock:
             has_running = any(q["status"] == "RUNNING" for q in self.active_queries.values())
             
-            # Dynamic hardware usage fluctuation
             if has_running:
                 cpu_val = round(random.uniform(64.2, 92.5), 1)
                 gpu_val = round(random.uniform(76.0, 95.2), 1) if getattr(cfg.config, "gpu_enabled", False) else round(random.uniform(38.0, 56.0), 1)
@@ -206,7 +198,6 @@ class TelemetryTracker:
             active_ram_bytes = int(ram_mb_val * 1024 * 1024)
             gpu_used_bytes = int((gpu_val / 100.0) * (8 * 1024 * 1024 * 1024))
             
-            # Append dynamic timeline point
             self.ram_timeline.append({
                 "timestamp": time.strftime("%H:%M:%S"),
                 "ram_mb": ram_mb_val,
@@ -250,6 +241,5 @@ class TelemetryTracker:
 
 
 
-# Global singleton
 tracker = TelemetryTracker()
 

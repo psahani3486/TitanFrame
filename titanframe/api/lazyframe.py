@@ -63,7 +63,6 @@ class LazyFrame:
         self._plan = plan
         self._materialized_data: Optional[Table] = None
 
-    # ---- Properties ----
 
     @property
     def schema(self) -> Schema:
@@ -80,7 +79,6 @@ class LazyFrame:
         """The underlying logical plan (for inspection/debugging)."""
         return self._plan
 
-    # ---- Selection ----
 
     def select(self, *names_or_exprs: str | Expr) -> LazyFrame:
         """
@@ -109,7 +107,6 @@ class LazyFrame:
 
         Existing columns are preserved; new expressions are appended.
         """
-        # Build a projection that includes all existing columns + new exprs
         existing = [col(name) for name in self.columns]
         all_exprs = existing + list(exprs)
         new_plan = Projection(self._plan, all_exprs)
@@ -129,7 +126,6 @@ class LazyFrame:
         new_plan = Projection(self._plan, exprs)
         return LazyFrame(new_plan)
 
-    # ---- Filtering ----
 
     def filter(self, expr: Expr) -> LazyFrame:
         """
@@ -143,7 +139,6 @@ class LazyFrame:
         new_plan = Filter(self._plan, expr)
         return LazyFrame(new_plan)
 
-    # ---- Aggregation ----
 
     def group_by(self, *keys: str | Expr) -> Any:
         """
@@ -154,7 +149,6 @@ class LazyFrame:
         from titanframe.api.groupby import LazyGroupBy
         return LazyGroupBy(self, keys)
 
-    # ---- Sorting ----
 
     def sort(
         self,
@@ -185,7 +179,6 @@ class LazyFrame:
         new_plan = Sort(self._plan, sort_exprs)
         return LazyFrame(new_plan)
 
-    # ---- Joins ----
 
     def join(
         self,
@@ -206,7 +199,6 @@ class LazyFrame:
         new_plan = Join(self._plan, other._plan, on, how, suffix)
         return LazyFrame(new_plan)
 
-    # ---- Slicing ----
 
     def head(self, n: int = 5) -> LazyFrame:
         """Take the first n rows."""
@@ -215,7 +207,7 @@ class LazyFrame:
 
     def tail(self, n: int = 5) -> LazyFrame:
         """Take the last n rows."""
-        new_plan = Limit(self._plan, n, offset=-1)  # Sentinel for tail
+        new_plan = Limit(self._plan, n, offset=-1)
         return LazyFrame(new_plan)
 
     def limit(self, n: int) -> LazyFrame:
@@ -227,7 +219,6 @@ class LazyFrame:
         new_plan = Limit(self._plan, length, offset=offset)
         return LazyFrame(new_plan)
 
-    # ---- Deduplication ----
 
     def unique(self, subset: Optional[list[str]] = None) -> LazyFrame:
         """Remove duplicate rows."""
@@ -238,14 +229,12 @@ class LazyFrame:
         """Remove duplicate rows (alias for unique)."""
         return self.unique()
 
-    # ---- Vertical operations ----
 
     def vstack(self, other: LazyFrame) -> LazyFrame:
         """Vertically concatenate another LazyFrame."""
         new_plan = Union([self._plan, other._plan])
         return LazyFrame(new_plan)
 
-    # ---- Execution ----
 
     def collect(self) -> Any:
         """
@@ -260,16 +249,13 @@ class LazyFrame:
         from titanframe.engine.scheduler import DAGScheduler
         from titanframe.plan.physical.node import ExecutionContext
         
-        # 1. Optimize
         rules = [PredicatePushdown(), ProjectionPushdown(), ConstantFolding()]
         optimizer = QueryOptimizer(rules)
         optimized_plan = optimizer.optimize(self._plan)
         
-        # 2. Plan
         planner = PhysicalPlanner()
         phys_plan = planner.plan(optimized_plan)
         
-        # 3. Execute
         ctx = ExecutionContext()
         scheduler = DAGScheduler()
         arrow_table = scheduler.execute(phys_plan, ctx)
@@ -355,11 +341,9 @@ class LazyFrame:
         else:
             raise ValueError(f"Unsupported scan format: {plan.format}")
 
-        # Apply pushed-down projection
         if plan.projection:
             table = table.select(plan.projection)
 
-        # Apply pushed-down limit
         if plan.limit is not None:
             table = table.head(plan.limit)
 
@@ -414,7 +398,6 @@ class LazyFrame:
     def _execute_limit(self, plan: Limit, child: Table) -> Table:
         """Execute a Limit node."""
         if plan.offset == -1:
-            # Tail
             return child.tail(plan.n)
         return child.slice(plan.offset, plan.n)
 
@@ -450,7 +433,6 @@ class LazyFrame:
         result_df = left_df.join(right_df, on=plan.on, how=plan.how, suffix=plan.suffix)
         return result_df._table
 
-    # ---- Inspection ----
 
     def explain(self, optimized: bool = True) -> str:
         """
@@ -477,7 +459,6 @@ class LazyFrame:
             label = f'{node.node_name()}: {node.node_description()}'
             label = label.replace('"', "'")
             lines.append(f'    N{i}["{label}"]')
-        # Add edges
         for i, node in enumerate(nodes):
             for child in node.children():
                 j = nodes.index(child)

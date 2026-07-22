@@ -9,7 +9,6 @@ import titanframe as tf
 def main():
     print("=== TitanFrame Quickstart ===")
     
-    # Create eager DataFrame
     df = tf.DataFrame({
         "employee_id": [101, 102, 103, 104, 105],
         "department": ["Eng", "Sales", "Eng", "HR", "Sales"],
@@ -19,7 +18,6 @@ def main():
     print("\nOriginal DataFrame:")
     print(df)
     
-    # Filter and Aggregate
     res = (
         df.filter(tf.col("salary") >= 90000)
         .group_by("department")

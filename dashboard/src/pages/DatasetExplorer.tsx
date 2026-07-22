@@ -76,7 +76,7 @@ export const DatasetExplorer: React.FC<DatasetExplorerProps> = ({
       </div>
 
       <div className="dataset-grid-layout">
-        {/* Left: Datasets List */}
+        {}
         <div className="datasets-sidebar-list">
           {filteredDatasets.map((d) => {
             const isSelected = activeDataset?.path === d.path;
@@ -96,7 +96,7 @@ export const DatasetExplorer: React.FC<DatasetExplorerProps> = ({
           })}
         </div>
 
-        {/* Right: Detailed View & Preview */}
+        {}
         <div className="dataset-detail-panel glass-panel">
           {activeDataset ? (
             <>
@@ -124,7 +124,7 @@ export const DatasetExplorer: React.FC<DatasetExplorerProps> = ({
                 </div>
               </div>
 
-              {/* Dataset Summary Statistics Grid */}
+              {}
               <div className="stats-summary-grid">
                 <div className="stat-card">
                   <span className="stat-label">Estimated Row Count</span>
@@ -148,7 +148,7 @@ export const DatasetExplorer: React.FC<DatasetExplorerProps> = ({
                 </div>
               </div>
 
-              {/* Schema Inspector */}
+              {}
               <div className="schema-section">
                 <h3>Schema Inspector ({Object.keys(activeDataset.schema).length} Columns)</h3>
                 <div className="schema-badge-list">
@@ -161,7 +161,7 @@ export const DatasetExplorer: React.FC<DatasetExplorerProps> = ({
                 </div>
               </div>
 
-              {/* Data Preview Table */}
+              {}
               <div className="preview-section">
                 <h3>Data Sample Preview (First 50 Rows)</h3>
                 {previewError && <div className="error-banner">Error: {previewError}</div>}

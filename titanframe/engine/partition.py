@@ -29,7 +29,6 @@ class HashPartition(PartitionStrategy):
         if num_partitions <= 1 or batch.num_rows == 0:
             return [batch]
             
-        # Compute simple hash code on key columns
         hashes = None
         for col_name in self.key_columns:
             arr = batch.column(col_name)
@@ -76,7 +75,6 @@ class RangePartition(PartitionStrategy):
         arr = batch.column(self.column)
         results = []
         
-        # Slices based on boundaries
         lower = None
         for i in range(num_partitions):
             upper = self.boundaries[i] if i < len(self.boundaries) else None

@@ -79,7 +79,7 @@ class Scan(LogicalPlan):
         return self._schema
 
     def children(self) -> list[LogicalPlan]:
-        return []  # Scan is always a leaf
+        return []
 
     def node_name(self) -> str:
         return "Scan"

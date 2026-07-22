@@ -50,7 +50,6 @@ class HashJoinExec(PhysicalPlan):
         else:
             right_table = pa.Table.from_batches(right_buffers)
         
-        # Determine join type for PyArrow
         pa_join_type = self.how
         if pa_join_type == "outer": pa_join_type = "full outer"
         

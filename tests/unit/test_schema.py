@@ -19,9 +19,6 @@ from titanframe.core.dtypes import Int32, Int64, Float64, Utf8, Bool, Null
 from titanframe.core.schema import Schema, SchemaError
 
 
-# ---------------------------------------------------------------------------
-# Construction
-# ---------------------------------------------------------------------------
 
 class TestSchemaConstruction:
 
@@ -44,9 +41,6 @@ class TestSchemaConstruction:
         assert s.names == ["z", "a", "m"]
 
 
-# ---------------------------------------------------------------------------
-# Properties & Lookups
-# ---------------------------------------------------------------------------
 
 class TestSchemaProperties:
 
@@ -93,9 +87,6 @@ class TestSchemaProperties:
             schema.field(10)
 
 
-# ---------------------------------------------------------------------------
-# Algebra
-# ---------------------------------------------------------------------------
 
 class TestSchemaAlgebra:
 
@@ -131,7 +122,7 @@ class TestSchemaAlgebra:
 
     def test_rename_collision_raises(self, left: Schema):
         with pytest.raises(SchemaError, match="collision"):
-            left.rename({"name": "id"})  # "id" already exists
+            left.rename({"name": "id"})
 
     def test_merge_no_collision(self):
         a = Schema({"x": Int32})
@@ -174,9 +165,6 @@ class TestSchemaAlgebra:
         assert result["new_col"] == Bool
 
 
-# ---------------------------------------------------------------------------
-# Validation
-# ---------------------------------------------------------------------------
 
 class TestSchemaValidation:
 
@@ -197,7 +185,7 @@ class TestSchemaValidation:
 
     def test_assert_compatible_passes(self):
         s = Schema({"a": Int32})
-        s.assert_compatible(s)  # Should not raise
+        s.assert_compatible(s)
 
     def test_assert_compatible_different_count(self):
         a = Schema({"a": Int32})
@@ -218,9 +206,6 @@ class TestSchemaValidation:
             a.assert_compatible(b)
 
 
-# ---------------------------------------------------------------------------
-# Arrow interop
-# ---------------------------------------------------------------------------
 
 class TestSchemaArrowInterop:
 
@@ -237,9 +222,6 @@ class TestSchemaArrowInterop:
         assert arrow_s.field("y").type == pa.bool_()
 
 
-# ---------------------------------------------------------------------------
-# Inference
-# ---------------------------------------------------------------------------
 
 class TestSchemaInference:
 
@@ -252,7 +234,7 @@ class TestSchemaInference:
     def test_from_dict_with_nulls(self):
         data = {"x": [None, None, 1]}
         s = Schema.from_dict(data)
-        assert s["x"] == Int64  # Infers from first non-null
+        assert s["x"] == Int64
 
     def test_from_dict_all_nulls(self):
         data = {"x": [None, None]}
@@ -260,9 +242,6 @@ class TestSchemaInference:
         assert s["x"] == Null
 
 
-# ---------------------------------------------------------------------------
-# Equality & Hashing
-# ---------------------------------------------------------------------------
 
 class TestSchemaEquality:
 
@@ -280,7 +259,7 @@ class TestSchemaEquality:
     def test_different_order_is_unequal(self):
         a = Schema({"x": Int32, "y": Utf8})
         b = Schema({"y": Utf8, "x": Int32})
-        assert a != b  # Order matters!
+        assert a != b
 
     def test_repr(self):
         s = Schema({"a": Int32})

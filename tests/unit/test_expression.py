@@ -22,9 +22,6 @@ from titanframe.expr.column_expr import col, ColumnExpr
 from titanframe.expr.literal_expr import lit, LiteralExpr
 
 
-# ---------------------------------------------------------------------------
-# Column Expression
-# ---------------------------------------------------------------------------
 
 class TestColumnExpr:
 
@@ -56,9 +53,6 @@ class TestColumnExpr:
         assert hash(a) != hash(b)
 
 
-# ---------------------------------------------------------------------------
-# Literal Expression
-# ---------------------------------------------------------------------------
 
 class TestLiteralExpr:
 
@@ -94,9 +88,6 @@ class TestLiteralExpr:
         assert expr.required_columns() == set()
 
 
-# ---------------------------------------------------------------------------
-# Operator Overloads → BinaryExpr
-# ---------------------------------------------------------------------------
 
 class TestBinaryExprFromOperators:
 
@@ -178,9 +169,6 @@ class TestBinaryExprFromOperators:
         assert expr.op == Op.XOR
 
 
-# ---------------------------------------------------------------------------
-# Unary Expressions
-# ---------------------------------------------------------------------------
 
 class TestUnaryExpr:
 
@@ -218,9 +206,6 @@ class TestUnaryExpr:
         assert expr.op == UnaryOp.EXP
 
 
-# ---------------------------------------------------------------------------
-# Aggregation Expressions
-# ---------------------------------------------------------------------------
 
 class TestAggExpr:
 
@@ -258,9 +243,6 @@ class TestAggExpr:
         assert expr.op == AggOp.MEDIAN
 
 
-# ---------------------------------------------------------------------------
-# Cast & Alias
-# ---------------------------------------------------------------------------
 
 class TestCastExpr:
 
@@ -289,9 +271,6 @@ class TestAliasExpr:
         assert expr.child is inner
 
 
-# ---------------------------------------------------------------------------
-# Sort Expression
-# ---------------------------------------------------------------------------
 
 class TestSortExpr:
 
@@ -305,9 +284,6 @@ class TestSortExpr:
         assert expr.order == SortOrder.DESC
 
 
-# ---------------------------------------------------------------------------
-# Required Columns (Projection Pushdown Support)
-# ---------------------------------------------------------------------------
 
 class TestRequiredColumns:
 
@@ -331,16 +307,13 @@ class TestRequiredColumns:
         assert expr.required_columns() == {"a", "b"}
 
 
-# ---------------------------------------------------------------------------
-# Tree Walking & Mapping
-# ---------------------------------------------------------------------------
 
 class TestTreeWalking:
 
     def test_walk_simple(self):
         expr = col("a") + col("b")
         nodes = expr.walk()
-        assert len(nodes) == 3  # BinaryExpr, ColumnExpr, ColumnExpr
+        assert len(nodes) == 3
 
     def test_walk_complex(self):
         expr = (col("a") + lit(1)).sum().alias("total")
@@ -355,20 +328,16 @@ class TestTreeWalking:
     def test_map_identity(self):
         expr = col("a") + col("b")
         mapped = expr.transform(lambda x: x)
-        # Should produce an equivalent tree
         assert isinstance(mapped, BinaryExpr)
 
     def test_with_children(self):
         expr = col("a") + col("b")
         new_expr = expr._with_children([col("x"), col("y")])
         assert isinstance(new_expr, BinaryExpr)
-        assert new_expr.left.column_name == "x"  # type: ignore
-        assert new_expr.right.column_name == "y"  # type: ignore
+        assert new_expr.left.column_name == "x"
+        assert new_expr.right.column_name == "y"
 
 
-# ---------------------------------------------------------------------------
-# Hashing (CSE Detection)
-# ---------------------------------------------------------------------------
 
 class TestExprHashing:
 

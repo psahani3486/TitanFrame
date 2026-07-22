@@ -38,7 +38,6 @@ class ScanExec(PhysicalPlan):
             if self.table is None:
                 raise ValueError("IN_MEMORY scan requires a valid table.")
             for chunk in self.table._chunks:
-                # Basic limit support
                 if self.limit is not None:
                     remaining = self.limit - rows_yielded
                     if remaining <= 0: break
@@ -51,7 +50,6 @@ class ScanExec(PhysicalPlan):
                 if self.limit is not None and rows_yielded >= self.limit:
                     break
         elif self.format == ScanFormat.PARQUET:
-            # For predicate pushdown, convert filters to pyarrow expressions if possible
             ds_filter = None
             if self.filters is not None:
                 from titanframe.plan.physical.evaluator import ExprEvaluator
@@ -127,8 +125,6 @@ class ScanExec(PhysicalPlan):
                 engine.dispose()
                     
         elif self.format == ScanFormat.CSV:
-            # Note: pyarrow.csv doesn't allow chunk size natively without read_options tweaking
-            # but we can use open_csv and iterate.
             with csv.open_csv(self.source) as reader:
                 for batch in reader:
                     if self.columns:

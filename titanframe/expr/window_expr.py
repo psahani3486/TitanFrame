@@ -49,8 +49,8 @@ class WindowFrame:
         end: Optional[int] = 0,
     ):
         self.frame_type = frame_type
-        self.start = start  # None = unbounded preceding
-        self.end = end      # 0 = current row
+        self.start = start
+        self.end = end
 
     def __repr__(self) -> str:
         start_str = "UNBOUNDED PRECEDING" if self.start is None else (
@@ -70,7 +70,6 @@ class WindowFrame:
         return (self.frame_type, self.start, self.end) == (other.frame_type, other.start, other.end)
 
 
-# Default frame: ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
 DEFAULT_FRAME = WindowFrame(WindowFrameType.ROWS, start=None, end=0)
 FULL_FRAME = WindowFrame(WindowFrameType.ROWS, start=None, end=None)
 
@@ -272,6 +271,5 @@ class _WindowBuilder:
             self._frame, self._window_op, self._agg_op, self._args,
         )
 
-    # Allow using _WindowBuilder as an Expr by implicitly building
     def __repr__(self) -> str:
         return repr(self.build())

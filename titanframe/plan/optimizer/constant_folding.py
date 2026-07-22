@@ -39,7 +39,6 @@ def fold_expr_node(expr: Expr) -> Expr:
     return expr
 
 def fold_expr(expr: Expr) -> Expr:
-    # Use transform (bottom-up rewrite) which we implemented in Phase 2
     return expr.transform(fold_expr_node)
 
 class ConstantFolding(OptimizationRule):

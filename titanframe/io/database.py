@@ -12,7 +12,6 @@ def read_sql(query: str, uri: str, **kwargs) -> Scan:
     from titanframe.core.schema import Schema
     import pyarrow as pa
     
-    # Connect to infer schema from 0 limit query
     engine = sa.create_engine(uri)
     if "SELECT" in query.upper():
         q = f"SELECT * FROM ({query}) AS sub LIMIT 0"
@@ -23,7 +22,6 @@ def read_sql(query: str, uri: str, **kwargs) -> Scan:
         df = pd.read_sql_query(sa.text(q), conn)
         schema = Schema.from_arrow(pa.Schema.from_pandas(df))
         
-    # We store "uri::query" in the source
     source = f"{uri}::{query}"
     return Scan(source=source, format=ScanFormat.SQL, schema=schema, **kwargs)
 

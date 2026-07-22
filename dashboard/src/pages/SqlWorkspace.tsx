@@ -100,7 +100,7 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
     }
   };
 
-  // Poll query logs & completion
+
   useEffect(() => {
     if (!runningQueryId) return;
     const interval = setInterval(async () => {
@@ -159,7 +159,7 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
         </div>
       </div>
 
-      {/* Live Pipeline Animation */}
+      {}
       <LivePipelineAnimation
         activeStageIdx={activeStageIdx}
         currentStageName={currentStageName}
@@ -167,7 +167,7 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
       />
 
       <div className="workspace-grid">
-        {/* Left: Preset Selector & Controls */}
+        {}
         <div className="preset-sidebar glass-panel">
           <h3>Query Presets</h3>
           <div className="presets-list">
@@ -198,7 +198,7 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
           </div>
         </div>
 
-        {/* Right: CodeMirror Editor & Results */}
+        {}
         <div className="editor-and-results">
           <div className="glass-panel editor-panel">
             <div className="editor-header">
@@ -228,7 +228,7 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
             </div>
           </div>
 
-          {/* Execution Metrics Summary Box */}
+          {}
           {queryResult && (
             <div className="exec-summary-box glass-panel">
               <div className="exec-summary-item">
@@ -254,7 +254,7 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
             </div>
           )}
 
-          {/* Terminal Console Log */}
+          {}
           <div className="glass-panel console-panel">
             <div className="panel-header">
               <h4>Live Engine Execution Console</h4>
@@ -278,7 +278,7 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
             </div>
           </div>
 
-          {/* Query Results Viewer */}
+          {}
           {queryResult && (
             <div className="glass-panel results-panel">
               <div className="panel-header">

@@ -32,9 +32,6 @@ from titanframe.core.dtypes import (
 )
 
 
-# ---------------------------------------------------------------------------
-# Type instances
-# ---------------------------------------------------------------------------
 
 class TestDTypeProperties:
     """Test basic properties of each DType singleton."""
@@ -126,9 +123,6 @@ class TestDTypeProperties:
         assert str(dtype) == dtype.name
 
 
-# ---------------------------------------------------------------------------
-# Arrow conversion
-# ---------------------------------------------------------------------------
 
 class TestArrowConversion:
     """Test bidirectional Arrow type conversion."""
@@ -176,9 +170,6 @@ class TestArrowConversion:
             from_arrow(pa.map_(pa.utf8(), pa.int32()))
 
 
-# ---------------------------------------------------------------------------
-# Name and Python type conversion
-# ---------------------------------------------------------------------------
 
 class TestNameConversion:
     """Test lookup by name."""
@@ -232,30 +223,23 @@ class TestValueConversion:
         assert from_value(None) == Null
 
 
-# ---------------------------------------------------------------------------
-# Type promotion matrix
-# ---------------------------------------------------------------------------
 
 class TestPromotion:
     """Test the full type promotion matrix."""
 
-    # Same type → same type
     @pytest.mark.parametrize("dtype", [Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64, Bool, Null])
     def test_same_type(self, dtype: DType):
         assert promote(dtype, dtype) == dtype
 
-    # Null + X → X
     @pytest.mark.parametrize("dtype", ALL_DTYPES)
     def test_null_promotion(self, dtype: DType):
         assert promote(Null, dtype) == dtype
         assert promote(dtype, Null) == dtype
 
-    # Bool + numeric → numeric
     @pytest.mark.parametrize("dtype", [Int8, Int32, Int64, Float32, Float64])
     def test_bool_to_numeric(self, dtype: DType):
         assert promote(Bool, dtype) == dtype
 
-    # Signed integer widening
     def test_int8_int16(self):
         assert promote(Int8, Int16) == Int16
 
@@ -271,14 +255,12 @@ class TestPromotion:
     def test_int32_int64(self):
         assert promote(Int32, Int64) == Int64
 
-    # Unsigned integer widening
     def test_uint8_uint16(self):
         assert promote(UInt8, UInt16) == UInt16
 
     def test_uint32_uint64(self):
         assert promote(UInt32, UInt64) == UInt64
 
-    # Signed × Unsigned → wider signed (critical for correctness!)
     def test_int8_uint8(self):
         """Int8 + UInt8 → Int16 to prevent overflow."""
         assert promote(Int8, UInt8) == Int16
@@ -294,7 +276,6 @@ class TestPromotion:
     def test_int8_uint32(self):
         assert promote(Int8, UInt32) == Int64
 
-    # Integer + Float → Float
     def test_int32_float64(self):
         assert promote(Int32, Float64) == Float64
 
@@ -306,11 +287,9 @@ class TestPromotion:
         """Int8 + Float32 → Float32 (small enough)."""
         assert promote(Int8, Float32) == Float32
 
-    # Float widening
     def test_float32_float64(self):
         assert promote(Float32, Float64) == Float64
 
-    # Symmetry check
     def test_promotion_is_symmetric(self):
         """promote(A, B) == promote(B, A) for all numeric pairs."""
         numeric = [Int8, Int16, Int32, Int64, UInt8, UInt16, UInt32, UInt64, Float32, Float64]
@@ -318,7 +297,6 @@ class TestPromotion:
             for b in numeric:
                 assert promote(a, b) == promote(b, a), f"Asymmetry: promote({a}, {b})"
 
-    # Invalid promotions
     def test_string_int_raises(self):
         with pytest.raises(TypeError, match="Cannot promote"):
             promote(Utf8, Int32)
@@ -328,9 +306,6 @@ class TestPromotion:
             promote(Date, Float64)
 
 
-# ---------------------------------------------------------------------------
-# Cast checking
-# ---------------------------------------------------------------------------
 
 class TestCanCast:
     """Test safe and unsafe casting rules."""
@@ -344,7 +319,6 @@ class TestCanCast:
         for dt in ALL_DTYPES:
             assert can_cast(Null, dt, safe=True)
 
-    # Safe: widening only
     def test_safe_int32_to_int64(self):
         assert can_cast(Int32, Int64, safe=True)
 
@@ -361,7 +335,6 @@ class TestCanCast:
     def test_safe_string_to_int_fails(self):
         assert not can_cast(Utf8, Int32, safe=True)
 
-    # Unsafe: allow lossy
     def test_unsafe_int64_to_int32(self):
         assert can_cast(Int64, Int32, safe=False)
 

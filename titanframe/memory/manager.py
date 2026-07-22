@@ -27,7 +27,7 @@ class MemoryManager:
         self.current_usage += size
         
         from titanframe.telemetry.tracker import tracker
-        tracker.set_budgets(int(self.budget_bytes), 100 * 1024**3) # hardcode spill budget for now
+        tracker.set_budgets(int(self.budget_bytes), 100 * 1024**3)
         tracker.record_allocation(size)
         
         return buf
@@ -71,7 +71,6 @@ class MemoryManager:
             buf.spill_to_disk(self.temp_path)
             self.current_usage -= buf.size_bytes
             
-            # Telemetry
             from titanframe.telemetry.tracker import tracker
             tracker.record_free(buf.size_bytes, is_spill=False)
             tracker.record_spill(buf.size_bytes)

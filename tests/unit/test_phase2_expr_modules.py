@@ -27,9 +27,6 @@ from titanframe.expr.column_expr import col, ColumnExpr
 from titanframe.expr.literal_expr import lit, LiteralExpr
 
 
-# ===========================================================================
-# Binary Expression Module
-# ===========================================================================
 
 class TestBinaryExprModule:
     """Tests for titanframe.expr.binary_expr."""
@@ -43,7 +40,6 @@ class TestBinaryExprModule:
             is_arithmetic_op, is_comparison_op, is_logical_op,
         )
 
-    # ---- Factory functions ----
 
     def test_add_factory(self):
         from titanframe.expr.binary_expr import add
@@ -104,7 +100,6 @@ class TestBinaryExprModule:
         assert isinstance(expr.left, LiteralExpr)
         assert expr.left.value == 42
 
-    # ---- Operator classification ----
 
     def test_is_arithmetic_op(self):
         from titanframe.expr.binary_expr import is_arithmetic_op
@@ -130,7 +125,6 @@ class TestBinaryExprModule:
         assert is_logical_op(Op.ADD) is False
         assert is_logical_op(Op.EQ) is False
 
-    # ---- Type inference ----
 
     def test_infer_arithmetic_same_type(self):
         from titanframe.expr.binary_expr import infer_binary_dtype
@@ -155,9 +149,6 @@ class TestBinaryExprModule:
         assert infer_binary_dtype(Op.OR, Bool, Bool) == Bool
 
 
-# ===========================================================================
-# Unary Expression Module
-# ===========================================================================
 
 class TestUnaryExprModule:
     """Tests for titanframe.expr.unary_expr."""
@@ -170,7 +161,6 @@ class TestUnaryExprModule:
             is_null_check_op, is_math_op,
         )
 
-    # ---- Factory functions ----
 
     def test_neg_factory(self):
         from titanframe.expr.unary_expr import neg
@@ -228,7 +218,6 @@ class TestUnaryExprModule:
         expr = neg(42)
         assert isinstance(expr.operand, LiteralExpr)
 
-    # ---- Operator classification ----
 
     def test_is_null_check_op(self):
         from titanframe.expr.unary_expr import is_null_check_op
@@ -244,7 +233,6 @@ class TestUnaryExprModule:
         assert is_math_op(UnaryOp.NEG) is False
         assert is_math_op(UnaryOp.IS_NULL) is False
 
-    # ---- Type inference ----
 
     def test_infer_null_check_produces_bool(self):
         from titanframe.expr.unary_expr import infer_unary_dtype
@@ -277,9 +265,6 @@ class TestUnaryExprModule:
         assert infer_unary_dtype(UnaryOp.EXP, Float32) == Float64
 
 
-# ===========================================================================
-# Aggregation Expression Module
-# ===========================================================================
 
 class TestAggExprModule:
     """Tests for titanframe.expr.agg_expr."""
@@ -293,7 +278,6 @@ class TestAggExprModule:
             infer_agg_dtype, partial_agg_state_fields, is_reducible_op,
         )
 
-    # ---- Factory functions ----
 
     def test_sum_factory(self):
         from titanframe.expr.agg_expr import sum_
@@ -361,7 +345,6 @@ class TestAggExprModule:
         expr = all_(col("valid"))
         assert expr.op == AggOp.ALL
 
-    # ---- QuantileExpr ----
 
     def test_quantile_creates_quantile_expr(self):
         from titanframe.expr.agg_expr import quantile, QuantileExpr
@@ -385,7 +368,7 @@ class TestAggExprModule:
     def test_quantile_is_agg_subclass(self):
         from titanframe.expr.agg_expr import quantile
         expr = quantile(col("x"), q=0.75)
-        assert isinstance(expr, AggExpr)  # Inherits from AggExpr
+        assert isinstance(expr, AggExpr)
 
     def test_quantile_display(self):
         from titanframe.expr.agg_expr import quantile
@@ -411,7 +394,6 @@ class TestAggExprModule:
         assert isinstance(new_expr, type(expr))
         assert new_expr.q == 0.75
 
-    # ---- Type inference ----
 
     def test_infer_count_is_int64(self):
         from titanframe.expr.agg_expr import infer_agg_dtype
@@ -444,7 +426,6 @@ class TestAggExprModule:
         assert infer_agg_dtype(AggOp.MAX, Float32) == Float32
         assert infer_agg_dtype(AggOp.FIRST, Utf8) == Utf8
 
-    # ---- Partial aggregation ----
 
     def test_is_reducible_sum(self):
         from titanframe.expr.agg_expr import is_reducible_op
@@ -475,9 +456,6 @@ class TestAggExprModule:
         assert p.all_value is True
 
 
-# ===========================================================================
-# Cast Expression Module
-# ===========================================================================
 
 class TestCastExprModule:
     """Tests for titanframe.expr.cast_expr."""
@@ -491,7 +469,6 @@ class TestCastExprModule:
             to_int64, to_float64, to_string, to_bool, to_date, to_datetime,
         )
 
-    # ---- Factory functions ----
 
     def test_cast_factory(self):
         from titanframe.expr.cast_expr import cast
@@ -510,7 +487,6 @@ class TestCastExprModule:
         assert isinstance(expr, TryCastExpr)
         assert expr.target_dtype == Int64
 
-    # ---- TryCastExpr ----
 
     def test_try_cast_children(self):
         from titanframe.expr.cast_expr import try_cast
@@ -543,16 +519,15 @@ class TestCastExprModule:
         assert isinstance(new_expr, TryCastExpr)
         assert new_expr.target_dtype == Float64
 
-    # ---- Validation ----
 
     def test_validate_identity_cast(self):
         from titanframe.expr.cast_expr import validate_cast
-        validate_cast(Int64, Int64)  # Should not raise
+        validate_cast(Int64, Int64)
 
     def test_validate_safe_widening(self):
         from titanframe.expr.cast_expr import validate_cast
-        validate_cast(Int32, Int64)  # Should not raise
-        validate_cast(Float32, Float64)  # Should not raise
+        validate_cast(Int32, Int64)
+        validate_cast(Float32, Float64)
 
     def test_validate_unsafe_narrowing_raises(self):
         from titanframe.expr.cast_expr import validate_cast, CastError
@@ -561,14 +536,13 @@ class TestCastExprModule:
 
     def test_validate_unsafe_allowed(self):
         from titanframe.expr.cast_expr import validate_cast
-        validate_cast(Float64, Int32, safe=False)  # Should not raise
+        validate_cast(Float64, Int32, safe=False)
 
     def test_is_identity_cast(self):
         from titanframe.expr.cast_expr import is_identity_cast
         assert is_identity_cast(Int64, Int64) is True
         assert is_identity_cast(Int64, Float64) is False
 
-    # ---- Shorthand functions ----
 
     def test_to_int64(self):
         from titanframe.expr.cast_expr import to_int64
@@ -591,7 +565,6 @@ class TestCastExprModule:
         expr = to_bool(col("x"))
         assert expr.target_dtype == Bool
 
-    # ---- Cast matrices ----
 
     def test_numeric_cast_pairs_non_empty(self):
         from titanframe.expr.cast_expr import NUMERIC_CAST_PAIRS
@@ -607,9 +580,6 @@ class TestCastExprModule:
         assert (Int64, Utf8) in STRING_CAST_PAIRS
 
 
-# ===========================================================================
-# Expr __init__.py exports
-# ===========================================================================
 
 class TestExprModuleExports:
     """Tests that the expr package __init__.py exports everything correctly."""
@@ -656,9 +626,6 @@ class TestExprModuleExports:
         )
 
 
-# ===========================================================================
-# DataFrame evaluator integration
-# ===========================================================================
 
 class TestEvaluatorIntegration:
     """Tests that the DataFrame evaluator handles new expression types."""
@@ -679,7 +646,6 @@ class TestEvaluatorIntegration:
         df = tf.DataFrame({"x": list(range(1, 101))})
         result = df.select(quantile(col("x"), q=0.95).alias("p95"))
         values = result.to_pydict()["p95"]
-        # 95th percentile of 1-100 should be around 95
         assert values[0] == pytest.approx(95.0, abs=1.0)
 
     def test_try_cast_valid_values(self):
@@ -705,7 +671,6 @@ class TestEvaluatorIntegration:
         from titanframe.expr.agg_expr import quantile
 
         df = tf.DataFrame({"x": [10, 20, 30, 40, 50]})
-        # Test that quantile works when chained with alias in eager mode
         result = df.select(
             quantile(col("x"), q=0.25).alias("q25"),
             quantile(col("x"), q=0.75).alias("q75"),
@@ -715,9 +680,6 @@ class TestEvaluatorIntegration:
         assert all(v == pytest.approx(40.0) for v in vals["q75"])
 
 
-# ===========================================================================
-# Package-level imports
-# ===========================================================================
 
 class TestPackageLevelImports:
     """Tests that titanframe package exposes the full Phase 2 API."""

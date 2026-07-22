@@ -16,8 +16,6 @@ class ExprEvaluator:
     """Walks an Expr tree and computes results on a Chunk."""
     
     def eval(self, expr: Expr, chunk: Chunk) -> pa.Array | pa.Scalar:
-        # Check for aliased expressions (if expressions were wrapped by Project etc)
-        # Aliases don't change evaluation, just get the underlying expr
         if hasattr(expr, "expr") and isinstance(expr.expr, Expr):
             expr = expr.expr
             
@@ -25,8 +23,6 @@ class ExprEvaluator:
             return chunk.column(expr.column_name)
             
         elif isinstance(expr, LiteralExpr):
-            # Return a PyArrow scalar. Most pyarrow.compute functions 
-            # accept scalars and broadcast them automatically.
             return pa.scalar(expr.value, type=expr.dtype.arrow_type)
             
         elif isinstance(expr, BinaryExpr):

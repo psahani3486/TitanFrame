@@ -57,7 +57,6 @@ class Table:
         self._schema = schema
         self._chunks = chunks or []
 
-        # Validate all chunks against the schema
         for i, chunk in enumerate(self._chunks):
             if chunk.schema != schema:
                 raise SchemaError(
@@ -65,7 +64,6 @@ class Table:
                     f"table schema {schema}"
                 )
 
-    # ---- Properties ----
 
     @property
     def schema(self) -> Schema:
@@ -117,7 +115,6 @@ class Table:
         """(num_rows, num_columns) — like Pandas."""
         return (self.num_rows, self.num_columns)
 
-    # ---- Column access ----
 
     def column(self, name: str) -> ChunkedColumn:
         """
@@ -141,7 +138,6 @@ class Table:
         """Get multiple columns by name."""
         return [self.column(name) for name in names]
 
-    # ---- Transformations (return new Table) ----
 
     def select(self, names: Sequence[str]) -> Table:
         """
@@ -259,7 +255,6 @@ class Table:
         if len(self._chunks) <= target_chunks:
             return self
 
-        # Convert to Arrow Table for efficient rechunking
         arrow_table = self.to_arrow()
         combined = arrow_table.combine_chunks()
 
@@ -270,7 +265,6 @@ class Table:
             )
             return Table(self._schema, [Chunk(batch)])
 
-        # Split into target_chunks
         total = self.num_rows
         rows_per = (total + target_chunks - 1) // target_chunks
         batches = []
@@ -282,7 +276,6 @@ class Table:
 
         return Table(self._schema, [Chunk(b) for b in batches])
 
-    # ---- Iteration ----
 
     def iter_chunks(self) -> Iterator[Chunk]:
         """Iterate over chunks."""
@@ -300,7 +293,6 @@ class Table:
             for i in range(chunk.num_rows):
                 yield {name: values[i] for name, values in pydict.items()}
 
-    # ---- Arrow interop ----
 
     def to_arrow(self) -> pa.Table:
         """Convert to a ``pyarrow.Table``."""
@@ -336,7 +328,6 @@ class Table:
         chunks = [Chunk(batch) for batch in batches if batch.num_rows > 0]
         return cls(schema, chunks)
 
-    # ---- Pandas interop ----
 
     def to_pandas(self) -> Any:
         """
@@ -358,7 +349,6 @@ class Table:
         arrow_table = pa.Table.from_pandas(df, preserve_index=False)
         return cls.from_arrow(arrow_table, chunk_size=chunk_size)
 
-    # ---- Python dict interop ----
 
     def to_pydict(self) -> dict[str, list[Any]]:
         """Convert to a Python dictionary of lists."""
@@ -380,7 +370,6 @@ class Table:
         arrow_table = pa.table(data)
         return cls.from_arrow(arrow_table, chunk_size=chunk_size)
 
-    # ---- Arrow IPC serialization ----
 
     def to_ipc_bytes(self) -> bytes:
         """
@@ -426,29 +415,24 @@ class Table:
             chunks.append(Chunk(batch))
         return cls(schema, chunks)
 
-    # ---- Display ----
 
     def __repr__(self) -> str:
         lines = [f"Table(rows={self.num_rows}, cols={self.num_columns}, chunks={self.num_chunks})"]
         lines.append(f"Schema: {self._schema}")
 
-        # Show first few rows
         if self.num_rows > 0:
             preview = self.head(min(5, self.num_rows))
             pydict = preview.to_pydict()
-            # Calculate column widths
             col_widths = {}
             for name in self.column_names:
                 values = [str(v) for v in pydict[name]]
                 col_widths[name] = max(len(name), max(len(v) for v in values) if values else 0)
 
-            # Header
             header = " | ".join(name.ljust(col_widths[name]) for name in self.column_names)
             separator = "-+-".join("-" * col_widths[name] for name in self.column_names)
             lines.append(header)
             lines.append(separator)
 
-            # Rows
             for i in range(preview.num_rows):
                 row = " | ".join(
                     str(pydict[name][i]).ljust(col_widths[name])

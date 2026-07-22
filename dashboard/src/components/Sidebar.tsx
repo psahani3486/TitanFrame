@@ -39,7 +39,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   return (
     <aside className={`titan-sidebar ${collapsed ? 'collapsed' : ''}`}>
-      {/* Brand Header */}
+      {}
       <div className="sidebar-brand" onClick={onToggleCollapse} title="Toggle sidebar">
         <div className="brand-logo-text">TF</div>
         {!collapsed && (
@@ -50,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
       </div>
 
-      {/* Navigation Links */}
+      {}
       <nav className="sidebar-nav">
         {NAV_ITEMS.map((item) => {
           const isActive = activePage === item.id;
@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         })}
       </nav>
 
-      {/* Collapse Toggle Footer */}
+      {}
       <div className="sidebar-footer">
         <button className="collapse-btn" onClick={onToggleCollapse}>
           {collapsed ? '>>' : '<< Collapse Navigation'}

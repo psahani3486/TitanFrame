@@ -30,7 +30,6 @@ from titanframe.expr.base import (
     _wrap,
 )
 
-# Re-export for users importing from this module
 __all__ = [
     "UnaryExpr",
     "UnaryOp",
@@ -50,9 +49,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Operator classification
-# ---------------------------------------------------------------------------
 
 _NULL_CHECK_OPS = frozenset({
     UnaryOp.IS_NULL, UnaryOp.IS_NOT_NULL,
@@ -82,9 +78,6 @@ def is_math_op(op: UnaryOp) -> bool:
     return op in _MATH_OPS
 
 
-# ---------------------------------------------------------------------------
-# Type inference for unary operations
-# ---------------------------------------------------------------------------
 
 def infer_unary_dtype(op: UnaryOp, input_dtype: DType) -> DType:
     """
@@ -120,9 +113,6 @@ def infer_unary_dtype(op: UnaryOp, input_dtype: DType) -> DType:
     raise TypeError(f"Cannot infer dtype for unknown unary op: {op}")
 
 
-# ---------------------------------------------------------------------------
-# Convenience factory functions
-# ---------------------------------------------------------------------------
 
 def _make_unary(op: UnaryOp, operand: Any) -> UnaryExpr:
     """Create a UnaryExpr, wrapping raw Python values into LiteralExpr."""

@@ -11,7 +11,6 @@ def test_physical_scan_and_filter():
     table = pa.Table.from_arrays([pa.array([10, 20, 30])], names=["val"])
     ctx = ExecutionContext()
     
-    # Wrap in physical nodes directly
     class MockScan(ScanExec):
         def __init__(self, table):
             self.table = table

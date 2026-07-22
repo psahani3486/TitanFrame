@@ -4,7 +4,6 @@ import pytest
 import titanframe as tf
 
 def test_e2e_lazy_query(tmp_path):
-    # Prepare parquet file
     df_init = tf.DataFrame({
         "cat": ["A", "B", "A", "C", "B"],
         "val": [10, 20, 30, 40, 50]
@@ -12,7 +11,6 @@ def test_e2e_lazy_query(tmp_path):
     parquet_file = tmp_path / "data.parquet"
     df_init.to_parquet(parquet_file)
     
-    # Run lazy pipeline
     result = (
         tf.read_parquet(parquet_file)
         .filter(tf.col("val") >= 20)

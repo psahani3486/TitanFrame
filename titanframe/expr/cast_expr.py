@@ -41,7 +41,6 @@ from titanframe.expr.base import (
     _wrap,
 )
 
-# Re-export for users importing from this module
 __all__ = [
     "CastExpr",
     "TryCastExpr",
@@ -55,9 +54,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Extended cast: TryCast (returns null on failure instead of raising)
-# ---------------------------------------------------------------------------
 
 class TryCastExpr(Expr):
     """
@@ -96,9 +92,6 @@ class TryCastExpr(Expr):
         return hash(("try_cast", self.child, self.target_dtype))
 
 
-# ---------------------------------------------------------------------------
-# Cast validation
-# ---------------------------------------------------------------------------
 
 class CastError(Exception):
     """Raised when a type cast is invalid or unsafe when safe mode is required."""
@@ -122,7 +115,7 @@ def validate_cast(
         CastError: If the cast is not allowed under the given safety mode.
     """
     if source_dtype == target_dtype:
-        return  # Identity cast always valid
+        return
 
     if not can_cast(source_dtype, target_dtype, safe=safe):
         mode = "safe" if safe else "unsafe"
@@ -142,38 +135,27 @@ def is_identity_cast(source_dtype: DType, target_dtype: DType) -> bool:
     return source_dtype == target_dtype
 
 
-# ---------------------------------------------------------------------------
-# Common cast matrices (for documentation and validation)
-# ---------------------------------------------------------------------------
 
-#: Supported numeric cast pairs (source → target).
-#: All same-category casts are valid. Cross-category casts go through promotion.
 NUMERIC_CAST_PAIRS: list[tuple[DType, DType]] = [
-    # Widening integer casts (always safe)
     (Int8, Int16), (Int8, Int32), (Int8, Int64),
     (Int16, Int32), (Int16, Int64),
     (Int32, Int64),
     (UInt8, UInt16), (UInt8, UInt32), (UInt8, UInt64),
     (UInt16, UInt32), (UInt16, UInt64),
     (UInt32, UInt64),
-    # Integer → Float (safe for small integers)
     (Int8, Float32), (Int16, Float32), (Int8, Float64), (Int16, Float64),
     (Int32, Float64), (Int64, Float64),
     (UInt8, Float32), (UInt16, Float32), (UInt8, Float64), (UInt16, Float64),
     (UInt32, Float64), (UInt64, Float64),
-    # Float widening
     (Float32, Float64),
-    # Bool → numeric
     (Bool, Int8), (Bool, Int32), (Bool, Int64), (Bool, Float64),
 ]
 
-#: Supported temporal cast pairs.
 TEMPORAL_CAST_PAIRS: list[tuple[DType, DType]] = [
     (Date, Datetime),
     (Datetime, Date),
 ]
 
-#: Supported string cast pairs (for parsing/formatting).
 STRING_CAST_PAIRS: list[tuple[DType, DType]] = [
     (Utf8, Int64), (Utf8, Float64), (Utf8, Bool),
     (Utf8, Date), (Utf8, Datetime),
@@ -182,9 +164,6 @@ STRING_CAST_PAIRS: list[tuple[DType, DType]] = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Convenience factory functions
-# ---------------------------------------------------------------------------
 
 def cast(operand: Any, target_dtype: DType, safe: bool = True) -> CastExpr:
     """
@@ -204,8 +183,6 @@ def cast(operand: Any, target_dtype: DType, safe: bool = True) -> CastExpr:
         >>> cast(col("count"), Int32, safe=False)
     """
     expr = _wrap(operand)
-    # Note: validation happens at execution time when the actual input dtype
-    # is known. At expression-build time, we don't know the source dtype.
     return CastExpr(expr, target_dtype)
 
 
@@ -231,9 +208,6 @@ def try_cast(operand: Any, target_dtype: DType) -> TryCastExpr:
     return TryCastExpr(_wrap(operand), target_dtype)
 
 
-# ---------------------------------------------------------------------------
-# Convenience shorthand casts
-# ---------------------------------------------------------------------------
 
 def to_int64(operand: Any) -> CastExpr:
     """Shorthand for ``cast(operand, Int64)``."""

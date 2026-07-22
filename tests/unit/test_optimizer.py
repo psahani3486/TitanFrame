@@ -23,7 +23,6 @@ def scan_node():
 
 
 def test_constant_folding(scan_node):
-    # lit(2) + lit(3)
     expr = lit(2) + lit(3)
     plan = Filter(scan_node, expr)
     
@@ -35,7 +34,6 @@ def test_constant_folding(scan_node):
 
 
 def test_slice_pushdown(scan_node):
-    # Limit(Scan) -> Scan with limit
     plan = Limit(scan_node, limit=10, offset=0)
     
     optimizer = QueryOptimizer([SlicePushdown()])
@@ -46,7 +44,6 @@ def test_slice_pushdown(scan_node):
 
 
 def test_slice_pushdown_with_offset(scan_node):
-    # Limit(Scan, offset=5) -> Limit(Scan(limit=15), offset=5)
     plan = Limit(scan_node, limit=10, offset=5)
     
     optimizer = QueryOptimizer([SlicePushdown()])
@@ -60,7 +57,6 @@ def test_slice_pushdown_with_offset(scan_node):
 
 
 def test_predicate_pushdown(scan_node):
-    # Filter(Scan) -> Scan with predicate
     expr = col("age") > lit(18)
     plan = Filter(scan_node, expr)
     
@@ -72,7 +68,6 @@ def test_predicate_pushdown(scan_node):
 
 
 def test_projection_pushdown(scan_node):
-    # Projection(Scan, [col("id")]) -> Scan with projection=["id"]
     plan = Projection(scan_node, [col("id")])
     
     optimizer = QueryOptimizer([ProjectionPushdown()])
@@ -84,7 +79,6 @@ def test_projection_pushdown(scan_node):
 
 
 def test_operator_fusion(scan_node):
-    # Filter(Filter(Scan)) -> Filter(Scan)
     expr1 = col("age") > lit(18)
     expr2 = col("name") == lit("Alice")
     plan = Filter(Filter(scan_node, expr1), expr2)

@@ -48,7 +48,7 @@ export const MemoryMonitor: React.FC<MemoryMonitorProps> = ({ telemetry }) => {
         </div>
       </div>
 
-      {/* 3 Memory Gauges */}
+      {}
       <div className="kpi-grid">
         <div className="glass-panel gauge-panel">
           <div className="gauge-header">
@@ -93,7 +93,7 @@ export const MemoryMonitor: React.FC<MemoryMonitorProps> = ({ telemetry }) => {
         </div>
       </div>
 
-      {/* Live Memory Allocation Line Chart */}
+      {}
       <div className="glass-panel chart-panel" style={{ marginTop: '1.5rem' }}>
         <h3>Live Memory Allocation History (RAM & GPU MB)</h3>
         <div style={{ width: '100%', height: '260px' }}>
@@ -108,7 +108,7 @@ export const MemoryMonitor: React.FC<MemoryMonitorProps> = ({ telemetry }) => {
         </div>
       </div>
 
-      {/* Step-by-Step Memory Event Timeline */}
+      {}
       <div className="glass-panel timeline-panel" style={{ marginTop: '1.5rem' }}>
         <h3>Step-by-Step Memory Lifecycle & Spill Log Timeline</h3>
         <div className="step-timeline-container">

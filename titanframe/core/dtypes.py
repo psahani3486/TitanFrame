@@ -31,9 +31,6 @@ import numpy as np
 import pyarrow as pa
 
 
-# ---------------------------------------------------------------------------
-# DType category — used for grouping types in the promotion matrix
-# ---------------------------------------------------------------------------
 
 class DTypeCategory(enum.Enum):
     """High-level category of a data type."""
@@ -48,9 +45,6 @@ class DTypeCategory(enum.Enum):
     NESTED = "nested"
 
 
-# ---------------------------------------------------------------------------
-# DType — the base type class
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True, slots=True)
 class DType:
@@ -78,7 +72,6 @@ class DType:
     nullable: bool = True
     _rank: int = 0
 
-    # ---- Identity ----
 
     def __repr__(self) -> str:
         return self.name
@@ -86,7 +79,6 @@ class DType:
     def __str__(self) -> str:
         return self.name
 
-    # ---- Queries ----
 
     @property
     def is_numeric(self) -> bool:
@@ -136,45 +128,32 @@ class DType:
         return self.byte_width == -1
 
 
-# ---------------------------------------------------------------------------
-# Singleton type instances
-# ---------------------------------------------------------------------------
 
-# Signed integers (rank 10–13)
 Int8 = DType("Int8", pa.int8(), np.dtype("int8"), 1, DTypeCategory.SIGNED_INTEGER, _rank=10)
 Int16 = DType("Int16", pa.int16(), np.dtype("int16"), 2, DTypeCategory.SIGNED_INTEGER, _rank=11)
 Int32 = DType("Int32", pa.int32(), np.dtype("int32"), 4, DTypeCategory.SIGNED_INTEGER, _rank=12)
 Int64 = DType("Int64", pa.int64(), np.dtype("int64"), 8, DTypeCategory.SIGNED_INTEGER, _rank=13)
 
-# Unsigned integers (rank 10–13)
 UInt8 = DType("UInt8", pa.uint8(), np.dtype("uint8"), 1, DTypeCategory.UNSIGNED_INTEGER, _rank=10)
 UInt16 = DType("UInt16", pa.uint16(), np.dtype("uint16"), 2, DTypeCategory.UNSIGNED_INTEGER, _rank=11)
 UInt32 = DType("UInt32", pa.uint32(), np.dtype("uint32"), 4, DTypeCategory.UNSIGNED_INTEGER, _rank=12)
 UInt64 = DType("UInt64", pa.uint64(), np.dtype("uint64"), 8, DTypeCategory.UNSIGNED_INTEGER, _rank=13)
 
-# Floating point (rank 20–21)
 Float32 = DType("Float32", pa.float32(), np.dtype("float32"), 4, DTypeCategory.FLOATING, _rank=20)
 Float64 = DType("Float64", pa.float64(), np.dtype("float64"), 8, DTypeCategory.FLOATING, _rank=21)
 
-# Boolean (rank 1)
 Bool = DType("Bool", pa.bool_(), np.dtype("bool"), 1, DTypeCategory.BOOLEAN, _rank=1)
 
-# String types (variable width)
 Utf8 = DType("Utf8", pa.utf8(), None, -1, DTypeCategory.STRING, _rank=30)
 Binary = DType("Binary", pa.binary(), None, -1, DTypeCategory.BINARY, _rank=31)
 
-# Temporal types
 Date = DType("Date", pa.date32(), None, 4, DTypeCategory.TEMPORAL, _rank=40)
 Datetime = DType("Datetime", pa.timestamp("us"), None, 8, DTypeCategory.TEMPORAL, _rank=41)
 Duration = DType("Duration", pa.duration("us"), None, 8, DTypeCategory.TEMPORAL, _rank=42)
 
-# Null type (rank 0 — promotes to anything)
 Null = DType("Null", pa.null(), None, 0, DTypeCategory.NULL, _rank=0)
 
 
-# ---------------------------------------------------------------------------
-# All types registry — for lookup and iteration
-# ---------------------------------------------------------------------------
 
 ALL_DTYPES: list[DType] = [
     Int8, Int16, Int32, Int64,
@@ -204,11 +183,9 @@ def from_arrow(arrow_type: pa.DataType) -> DType:
     Raises:
         TypeError: If the Arrow type has no TitanFrame equivalent.
     """
-    # Direct lookup
     if arrow_type in _ARROW_TO_DTYPE:
         return _ARROW_TO_DTYPE[arrow_type]
 
-    # Parameterized type matching
     if pa.types.is_timestamp(arrow_type):
         return Datetime
     if pa.types.is_duration(arrow_type):
@@ -224,7 +201,6 @@ def from_arrow(arrow_type: pa.DataType) -> DType:
     if pa.types.is_null(arrow_type):
         return Null
     if pa.types.is_signed_integer(arrow_type):
-        # Match by byte width
         width = arrow_type.bit_width // 8
         return {1: Int8, 2: Int16, 4: Int32, 8: Int64}[width]
     if pa.types.is_unsigned_integer(arrow_type):
@@ -279,13 +255,7 @@ def from_value(value: Any) -> DType:
     return from_python_type(type(value))
 
 
-# ---------------------------------------------------------------------------
-# Type promotion
-# ---------------------------------------------------------------------------
 
-# Explicit promotion table for mixed-type arithmetic.
-# The key is (left_dtype, right_dtype), value is the result dtype.
-# This table is symmetric: (A, B) → C implies (B, A) → C.
 _PROMOTION_TABLE: dict[tuple[DType, DType], DType] = {}
 
 
@@ -313,44 +283,36 @@ def _build_promotion_table() -> None:
         Float32, Float64,
     ]
 
-    # Rule: same type → same type
     for dt in ALL_DTYPES:
         _PROMOTION_TABLE[(dt, dt)] = dt
 
-    # Rule: Null + X → X
     for dt in ALL_DTYPES:
         _register_promotion(Null, dt, dt)
 
-    # Rule: Bool + numeric → numeric
     for dt in numeric_types:
         _register_promotion(Bool, dt, dt)
 
-    # Rule: numeric promotions
     signed = [Int8, Int16, Int32, Int64]
     unsigned = [UInt8, UInt16, UInt32, UInt64]
     floats = [Float32, Float64]
 
-    # Signed + Signed → wider
     for i, a in enumerate(signed):
         for j, b in enumerate(signed):
             if i != j:
                 result = signed[max(i, j)]
                 _register_promotion(a, b, result)
 
-    # Unsigned + Unsigned → wider
     for i, a in enumerate(unsigned):
         for j, b in enumerate(unsigned):
             if i != j:
                 result = unsigned[max(i, j)]
                 _register_promotion(a, b, result)
 
-    # Signed + Unsigned → signed of next width (to avoid overflow)
-    # e.g., Int32 + UInt32 → Int64, Int8 + UInt8 → Int16
     _cross_promote = {
         (Int8, UInt8): Int16,
         (Int8, UInt16): Int32,
         (Int8, UInt32): Int64,
-        (Int8, UInt64): Int64,  # best effort
+        (Int8, UInt64): Int64,
         (Int16, UInt8): Int16,
         (Int16, UInt16): Int32,
         (Int16, UInt32): Int64,
@@ -362,17 +324,15 @@ def _build_promotion_table() -> None:
         (Int64, UInt8): Int64,
         (Int64, UInt16): Int64,
         (Int64, UInt32): Int64,
-        (Int64, UInt64): Int64,  # may lose precision for huge uint64
+        (Int64, UInt64): Int64,
     }
     for (a, b), result in _cross_promote.items():
         _register_promotion(a, b, result)
 
-    # Integer + Float → Float
     for int_dt in signed + unsigned:
         _register_promotion(int_dt, Float32, Float32 if int_dt.byte_width <= 2 else Float64)
         _register_promotion(int_dt, Float64, Float64)
 
-    # Float + Float → wider
     _register_promotion(Float32, Float64, Float64)
 
 
@@ -427,17 +387,15 @@ def can_cast(source: DType, target: DType, safe: bool = True) -> bool:
     if source == target:
         return True
     if source == Null:
-        return True  # Null can become anything
+        return True
 
     if safe:
-        # Safe: only widening numeric casts
         try:
             promoted = promote(source, target)
             return promoted == target
         except TypeError:
             return False
     else:
-        # Unsafe: allow any numeric→numeric, string→numeric (parsed), etc.
         if source.is_numeric and target.is_numeric:
             return True
         if source.is_string and target.is_numeric:

@@ -55,7 +55,7 @@ export const QueryHistory: React.FC<QueryHistoryProps> = ({ telemetry }) => {
       </div>
 
       <div className="history-grid">
-        {/* Queries Table */}
+        {}
         <div className="glass-panel table-panel">
           <div className="table-responsive">
             <table className="history-table">
@@ -109,7 +109,7 @@ export const QueryHistory: React.FC<QueryHistoryProps> = ({ telemetry }) => {
           </div>
         </div>
 
-        {/* Selected Query Logs Panel */}
+        {}
         {selectedQueryId && (
           <div className="glass-panel logs-panel">
             <div className="panel-header">

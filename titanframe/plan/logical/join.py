@@ -60,7 +60,6 @@ class Join(LogicalPlan):
 
     def output_schema(self) -> Schema:
         left_schema = self.left.output_schema()
-        # For right schema, drop join keys to avoid duplication
         right_schema = self.right.output_schema().drop(self.on)
         return left_schema.merge(right_schema, suffix=self.suffix)
 

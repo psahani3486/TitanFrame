@@ -7,7 +7,7 @@ Handles stream-based async transfers between CPU host memory and GPU VRAM.
 from typing import Any, Optional
 
 try:
-    import cupy as cp  # type: ignore
+    import cupy as cp
 except ImportError:
     cp = None
 

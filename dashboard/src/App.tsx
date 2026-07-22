@@ -8,7 +8,7 @@ import type { PageId } from './components/Sidebar';
 import { StatusBar } from './components/StatusBar';
 
 
-// Page Modules
+
 import { ExecutiveDashboard } from './pages/ExecutiveDashboard';
 import { DatasetExplorer } from './pages/DatasetExplorer';
 import { SqlWorkspace } from './pages/SqlWorkspace';
@@ -42,7 +42,7 @@ export default function App() {
   return (
     <div className="titan-app-shell">
       <div className="shell-body">
-        {/* Persistent Collapsible Sidebar */}
+        {}
         <Sidebar
           activePage={activePage}
           onSelectPage={setActivePage}
@@ -51,7 +51,7 @@ export default function App() {
           activeQueriesCount={activeQueriesCount}
         />
 
-        {/* Dynamic Main Page Content View */}
+        {}
         <main className="shell-content">
           {activePage === 'executive' && (
             <ExecutiveDashboard
@@ -98,7 +98,7 @@ export default function App() {
         </main>
       </div>
 
-      {/* Persistent Bottom Status Bar */}
+      {}
       <StatusBar
         isConnected={isConnected}
         telemetry={telemetry}

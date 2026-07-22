@@ -23,7 +23,6 @@ from titanframe.expr.base import Expr
 
 class DatetimeOp(enum.Enum):
     """Datetime component extraction and manipulation operations."""
-    # Component extraction
     YEAR = "year"
     MONTH = "month"
     DAY = "day"
@@ -33,30 +32,26 @@ class DatetimeOp(enum.Enum):
     MILLISECOND = "millisecond"
     MICROSECOND = "microsecond"
     NANOSECOND = "nanosecond"
-    WEEKDAY = "weekday"          # Monday=0, Sunday=6
-    ISO_WEEKDAY = "iso_weekday"  # Monday=1, Sunday=7
-    WEEK = "week"                # ISO week number
+    WEEKDAY = "weekday"
+    ISO_WEEKDAY = "iso_weekday"
+    WEEK = "week"
     DAY_OF_YEAR = "day_of_year"
     QUARTER = "quarter"
 
-    # Manipulation
-    DATE = "date"                # Extract date part
-    TIME = "time"                # Extract time part
-    EPOCH = "epoch"              # Seconds since epoch
-    EPOCH_MS = "epoch_ms"        # Milliseconds since epoch
+    DATE = "date"
+    TIME = "time"
+    EPOCH = "epoch"
+    EPOCH_MS = "epoch_ms"
 
-    # Rounding
-    TRUNCATE = "truncate"        # Truncate to unit
-    ROUND = "round"              # Round to unit
-    CEIL = "ceil"                # Ceil to unit
+    TRUNCATE = "truncate"
+    ROUND = "round"
+    CEIL = "ceil"
 
-    # Arithmetic
-    OFFSET_BY = "offset_by"     # Add duration
-    DIFF = "diff"               # Difference between timestamps
+    OFFSET_BY = "offset_by"
+    DIFF = "diff"
 
-    # Formatting
-    STRFTIME = "strftime"       # Format as string
-    TIMESTAMP = "timestamp"     # Convert to timestamp
+    STRFTIME = "strftime"
+    TIMESTAMP = "timestamp"
 
 
 class DatetimeExpr(Expr):
@@ -108,7 +103,6 @@ class DatetimeAccessor:
     def __init__(self, expr: Expr):
         self._expr = expr
 
-    # ---- Component extraction (properties) ----
 
     @property
     def year(self) -> Expr:
@@ -190,7 +184,6 @@ class DatetimeAccessor:
         """Extract the time part (removes date)."""
         return DatetimeExpr(self._expr, DatetimeOp.TIME)
 
-    # ---- Epoch conversion ----
 
     def epoch(self, unit: str = "s") -> Expr:
         """
@@ -203,7 +196,6 @@ class DatetimeAccessor:
             return DatetimeExpr(self._expr, DatetimeOp.EPOCH_MS)
         return DatetimeExpr(self._expr, DatetimeOp.EPOCH)
 
-    # ---- Rounding ----
 
     def truncate(self, unit: str) -> Expr:
         """
@@ -222,7 +214,6 @@ class DatetimeAccessor:
         """Ceil datetime to the next unit boundary."""
         return DatetimeExpr(self._expr, DatetimeOp.CEIL, (unit,))
 
-    # ---- Arithmetic ----
 
     def offset_by(self, duration: str) -> Expr:
         """
@@ -233,7 +224,6 @@ class DatetimeAccessor:
         """
         return DatetimeExpr(self._expr, DatetimeOp.OFFSET_BY, (duration,))
 
-    # ---- Formatting ----
 
     def strftime(self, fmt: str) -> Expr:
         """

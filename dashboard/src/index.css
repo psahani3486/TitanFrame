@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* Human-Engineered Production Dark Palette (Grafana / Databricks Style) */
+  
   --bg-dark: #0b0f19;
   --bg-card: #111827;
   --bg-card-hover: #1f2937;
@@ -43,7 +43,7 @@ code, pre, .font-mono {
   font-family: var(--font-mono);
 }
 
-/* Glass panel utility with clean subtle borders */
+
 .glass-panel {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -52,7 +52,7 @@ code, pre, .font-mono {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Human-engineered Unified Button System */
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -130,7 +130,7 @@ code, pre, .font-mono {
   text-decoration: underline;
 }
 
-/* Base Page Layout Container */
+
 .page-container {
   padding: 1.5rem;
   max-width: 1600px;
@@ -159,7 +159,7 @@ code, pre, .font-mono {
   margin-top: 0.2rem;
 }
 
-/* Grids */
+
 .grid-2-col {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -172,7 +172,7 @@ code, pre, .font-mono {
   }
 }
 
-/* Tables */
+
 .table-responsive {
   width: 100%;
   overflow-x: auto;
@@ -206,7 +206,7 @@ tr:hover td {
   background-color: var(--bg-card-hover);
 }
 
-/* Status Badges */
+
 .status-badge {
   display: inline-flex;
   align-items: center;

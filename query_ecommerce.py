@@ -22,10 +22,8 @@ def run_top_revenue_brands(dataset_path: str = "dataset/2019-Oct.csv"):
     print(f"\n--- Running Query 1: Top Revenue Brands on {dataset_path} ---")
     start_t = time.time()
     
-    # 1. Scan dataset lazily (Out-of-core streaming CSV scan)
     lf = tf.scan_csv(dataset_path)
     
-    # 2. Build Lazy Execution DAG with Predicate Pushdown & Projection Pruning
     query = (
         lf.filter(tf.col("event_type") == "purchase")
           .filter(tf.col("brand").is_not_null())
@@ -39,7 +37,6 @@ def run_top_revenue_brands(dataset_path: str = "dataset/2019-Oct.csv"):
           .head(20)
     )
     
-    # 3. Collect / Execute out-of-core query
     result_df = query.collect()
     duration = time.time() - start_t
     

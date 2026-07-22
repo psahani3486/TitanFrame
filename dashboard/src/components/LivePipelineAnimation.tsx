@@ -2,7 +2,7 @@ import React from 'react';
 import './LivePipelineAnimation.css';
 
 interface LivePipelineAnimationProps {
-  activeStageIdx: number; // 0: Idle, 1: Scan, 2: Projection, 3: Filter, 4: Agg, 5: Output
+  activeStageIdx: number;
   currentStageName: string;
   rowsPerSec: number;
 }

@@ -41,7 +41,6 @@ class HashAggExec(PhysicalPlan):
             
         table = pa.Table.from_batches(batches)
         
-        # Free buffers if memory manager is used
         if context.memory_manager:
             for b in buffer_list:
                 context.memory_manager.free(b)
@@ -98,6 +97,5 @@ class HashAggExec(PhysicalPlan):
         res_table = table.group_by(keys).aggregate(agg_tuples)
         res_batch = res_table.to_batches()[0]
         
-        # PyArrow returns cols in order: keys, then aggs
         renamed_batch = pa.RecordBatch.from_arrays(res_batch.columns, names=self.output_names)
         yield Chunk(renamed_batch)

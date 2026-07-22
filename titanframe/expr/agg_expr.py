@@ -43,7 +43,6 @@ from titanframe.expr.base import (
     _wrap,
 )
 
-# Re-export for users importing from this module
 __all__ = [
     "AggExpr",
     "AggOp",
@@ -69,9 +68,6 @@ __all__ = [
 ]
 
 
-# ---------------------------------------------------------------------------
-# Extended aggregation: Quantile
-# ---------------------------------------------------------------------------
 
 class QuantileExpr(AggExpr):
     """
@@ -102,9 +98,6 @@ class QuantileExpr(AggExpr):
         return hash(("quantile", self.child, self.q))
 
 
-# ---------------------------------------------------------------------------
-# Type inference for aggregation
-# ---------------------------------------------------------------------------
 
 def infer_agg_dtype(op: AggOp, input_dtype: DType) -> DType:
     """
@@ -124,34 +117,26 @@ def infer_agg_dtype(op: AggOp, input_dtype: DType) -> DType:
     Returns:
         The inferred output DType.
     """
-    # Always integer counts
     if op in (AggOp.COUNT, AggOp.COUNT_DISTINCT):
         return Int64
 
-    # Always boolean
     if op in (AggOp.ANY, AggOp.ALL):
         return Bool
 
-    # Always float for statistical aggregations
     if op in (AggOp.MEAN, AggOp.STD, AggOp.VAR, AggOp.MEDIAN, AggOp.QUANTILE):
         return Float64
 
-    # SUM: promote integers to Int64, keep floats
     if op == AggOp.SUM:
         if input_dtype.is_integer:
             return Int64
         return input_dtype
 
-    # MIN, MAX, FIRST, LAST: preserve input type
     if op in (AggOp.MIN, AggOp.MAX, AggOp.FIRST, AggOp.LAST):
         return input_dtype
 
     raise TypeError(f"Cannot infer dtype for unknown agg op: {op}")
 
 
-# ---------------------------------------------------------------------------
-# Partial aggregation support (for distributed execution)
-# ---------------------------------------------------------------------------
 
 @dataclass
 class PartialAggResult:
@@ -211,13 +196,13 @@ def partial_agg_state_fields(op: AggOp) -> list[str]:
         AggOp.MIN: ["min_value"],
         AggOp.MAX: ["max_value"],
         AggOp.COUNT: ["count"],
-        AggOp.COUNT_DISTINCT: ["count"],  # Requires a set, simplified here
+        AggOp.COUNT_DISTINCT: ["count"],
         AggOp.FIRST: ["first_value", "count"],
         AggOp.LAST: ["last_value"],
         AggOp.ANY: ["any_value"],
         AggOp.ALL: ["all_value"],
-        AggOp.MEDIAN: ["count", "sum_value"],  # Approximate; exact needs all data
-        AggOp.QUANTILE: ["count", "sum_value"],  # Approximate; exact needs all data
+        AggOp.MEDIAN: ["count", "sum_value"],
+        AggOp.QUANTILE: ["count", "sum_value"],
     }
     return _fields_map.get(op, ["count", "sum_value"])
 
@@ -234,9 +219,6 @@ def is_reducible_op(op: AggOp) -> bool:
     return op not in _non_reducible
 
 
-# ---------------------------------------------------------------------------
-# Convenience factory functions
-# ---------------------------------------------------------------------------
 
 def _make_agg(op: AggOp, operand: Any) -> AggExpr:
     """Create an AggExpr, wrapping raw values into expressions."""

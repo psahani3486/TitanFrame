@@ -45,7 +45,7 @@ export interface ConfigSettings {
   gpu_enabled: boolean;
   enable_query_optimizer: boolean;
   nvme_spill_path: string;
-  // Advanced settings
+
   num_threads?: number;
   simd_enabled?: boolean;
   arrow_buffer_kb?: number;
