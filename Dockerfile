@@ -15,7 +15,7 @@ COPY . /app
 
 # Install python dependencies and titanframe package
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir pandas polars pytest && \
+    pip install --no-cache-dir pandas polars pytest sqlalchemy && \
     pip install --no-cache-dir -e .
 
 # Expose web dashboard port

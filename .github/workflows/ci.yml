@@ -34,3 +34,8 @@ jobs:
         PYTHONPATH: .
       run: |
         python -m pytest tests/ -v
+        
+    - name: Verify Docker build
+      if: runner.os == 'Linux'
+      run: |
+        docker build -t titanframe-studio .
