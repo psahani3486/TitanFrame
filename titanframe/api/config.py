@@ -30,6 +30,22 @@ class TitanFrameConfig:
     max_display_columns: int = 50
     max_column_width: int = 40
 
+    @property
+    def batch_size(self) -> int:
+        return self.chunk_size
+
+    @batch_size.setter
+    def batch_size(self, val: int) -> None:
+        self.chunk_size = val
+
+    @property
+    def use_gpu(self) -> bool:
+        return self.gpu_enabled
+
+    @use_gpu.setter
+    def use_gpu(self, val: bool) -> None:
+        self.gpu_enabled = val
+
     def set_gpu_device(self, device_id: int) -> None:
         self.gpu_device_id = device_id
         self.gpu_enabled = True

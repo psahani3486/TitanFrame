@@ -20,12 +20,16 @@ class HashPartition(PartitionStrategy):
         hashes = None
         for col_name in self.key_columns:
             arr = batch.column(col_name)
-            h = pc.hash_expression(arr) if hasattr(pc, 'hash_expression') else pc.utf8_length(arr) if pa.types.is_string(arr.type) else arr
-            hashes = h if hashes is None else pc.add(hashes, h)
-        partition_indices = pc.mod(pc.abs(hashes), pa.scalar(num_partitions))
+            if hasattr(pc, 'hash_expression'):
+                h = pc.hash_expression(arr)
+            else:
+                h_vals = [abs(hash(val.as_py())) for val in arr]
+                h = pa.array(h_vals, type=pa.int64())
+            hashes = h if hashes is None else (hashes + h)
+        partition_indices = hashes % num_partitions
         results = []
         for p in range(num_partitions):
-            mask = pc.equal(partition_indices, p)
+            mask = (partition_indices == p)
             sliced = batch.filter(mask)
             results.append(sliced)
         return results
@@ -37,8 +41,9 @@ class RoundRobinPartition(PartitionStrategy):
             return [batch]
         results = []
         indices = pa.array(list(range(batch.num_rows)))
+        partition_indices = indices % num_partitions
         for p in range(num_partitions):
-            mask = pc.equal(pc.mod(indices, pa.scalar(num_partitions)), p)
+            mask = (partition_indices == p)
             results.append(batch.filter(mask))
         return results
 
@@ -57,11 +62,11 @@ class RangePartition(PartitionStrategy):
         for i in range(num_partitions):
             upper = self.boundaries[i] if i < len(self.boundaries) else None
             if lower is None and upper is not None:
-                mask = pc.less(arr, upper)
+                mask = (arr < upper)
             elif lower is not None and upper is not None:
-                mask = pc.and_(pc.greater_equal(arr, lower), pc.less(arr, upper))
+                mask = (arr >= lower) & (arr < upper)
             elif lower is not None and upper is None:
-                mask = pc.greater_equal(arr, lower)
+                mask = (arr >= lower)
             else:
                 mask = pa.array([True] * batch.num_rows)
             results.append(batch.filter(mask))

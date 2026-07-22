@@ -7,7 +7,8 @@ class ExecutionContext:
     def __init__(self, batch_size: Optional[int]=None, memory_manager: Optional[MemoryManager]=None):
         self.batch_size = batch_size or config.batch_size
         if memory_manager is None:
-            self.memory_manager = MemoryManager(config.cpu_memory_limit)
+            limit = float(config.cpu_memory_limit) if config.cpu_memory_limit is not None else 8 * 1024 * 1024 * 1024.0
+            self.memory_manager = MemoryManager(budget_bytes=limit)
         else:
             self.memory_manager = memory_manager
         self.use_gpu = config.use_gpu
