@@ -1,5 +1,3 @@
-"""Integration test for Multi-GPU abstractions."""
-
 import pytest
 import titanframe as tf
 from titanframe.gpu.device import GPUDeviceManager

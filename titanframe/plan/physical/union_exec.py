@@ -1,12 +1,8 @@
-"""
-Union Node
-==========
-Concatenates chunks from multiple physical plans.
-"""
 from typing import Iterator
 from titanframe.plan.physical.node import PhysicalPlan, ExecutionContext, Chunk
 
 class UnionExec(PhysicalPlan):
+
     def __init__(self, inputs: list[PhysicalPlan]):
         self.inputs = inputs
 

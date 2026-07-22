@@ -1,53 +1,14 @@
-"""
-TitanFrame Series
-==================
-
-A Series is a single named column — the result of extracting one column
-from a DataFrame. It provides Pandas-compatible scalar operations,
-aggregations, and accessors (.str, .dt).
-
-Example::
-
-    >>> import titanframe as tf
-    >>> df = tf.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
-    >>> s = df["a"]
-    >>> s.sum()
-    6
-    >>> s.mean()
-    2.0
-"""
-
 from __future__ import annotations
-
 from typing import Any, Optional, Sequence
-
 import pyarrow as pa
 import pyarrow.compute as pc
-
 from titanframe.core.column import ChunkedColumn
 from titanframe.core.dtypes import DType, from_arrow
 
-
 class Series:
-    """
-    A single named column with Pandas-compatible operations.
+    __slots__ = ('_column',)
 
-    Backed by a :class:`ChunkedColumn` (list of Arrow arrays).
-
-    Args:
-        name: Column name.
-        data: A ChunkedColumn, pyarrow.ChunkedArray, or Python list.
-        dtype: Optional explicit type (inferred if not provided).
-    """
-
-    __slots__ = ("_column",)
-
-    def __init__(
-        self,
-        name: str,
-        data: ChunkedColumn | pa.ChunkedArray | pa.Array | list | None = None,
-        dtype: Optional[DType] = None,
-    ):
+    def __init__(self, name: str, data: ChunkedColumn | pa.ChunkedArray | pa.Array | list | None=None, dtype: Optional[DType]=None):
         if isinstance(data, ChunkedColumn):
             self._column = data
         elif isinstance(data, pa.ChunkedArray):
@@ -68,8 +29,7 @@ class Series:
             dt = dtype or Null
             self._column = ChunkedColumn(name, dt)
         else:
-            raise TypeError(f"Cannot construct Series from {type(data).__name__}")
-
+            raise TypeError(f'Cannot construct Series from {type(data).__name__}')
 
     @property
     def name(self) -> str:
@@ -102,7 +62,6 @@ class Series:
     def __len__(self) -> int:
         return self.num_rows
 
-
     @property
     def _chunked_column(self) -> ChunkedColumn:
         return self._column
@@ -112,7 +71,6 @@ class Series:
 
     def _to_combined_array(self) -> pa.Array:
         return self._to_chunked_array().combine_chunks()
-
 
     def sum(self) -> Any:
         return pc.sum(self._to_chunked_array()).as_py()
@@ -129,10 +87,10 @@ class Series:
     def count(self) -> int:
         return pc.count(self._to_chunked_array()).as_py()
 
-    def std(self, ddof: int = 1) -> Any:
+    def std(self, ddof: int=1) -> Any:
         return pc.stddev(self._to_chunked_array(), ddof=ddof).as_py()
 
-    def var(self, ddof: int = 1) -> Any:
+    def var(self, ddof: int=1) -> Any:
         return pc.variance(self._to_chunked_array(), ddof=ddof).as_py()
 
     def median(self) -> Any:
@@ -150,11 +108,7 @@ class Series:
 
     def value_counts(self) -> dict[Any, int]:
         result = pc.value_counts(self._to_combined_array())
-        return {
-            item["values"].as_py(): item["counts"].as_py()
-            for item in result.to_pylist()
-        }
-
+        return {item['values'].as_py(): item['counts'].as_py() for item in result.to_pylist()}
 
     def __add__(self, other: Any) -> Series:
         return self._binary_op(pc.add, other)
@@ -218,7 +172,6 @@ class Series:
     def __invert__(self) -> Series:
         return Series(self.name, pc.invert(self._to_combined_array()))
 
-
     def is_null(self) -> Series:
         return Series(self.name, pc.is_null(self._to_combined_array()))
 
@@ -237,7 +190,6 @@ class Series:
     def drop_null(self) -> Series:
         return Series(self.name, pc.drop_null(self._to_combined_array()))
 
-
     def cast(self, dtype: DType) -> Series:
         result = pc.cast(self._to_combined_array(), dtype.arrow_type)
         return Series(self.name, result)
@@ -245,19 +197,17 @@ class Series:
     def rename(self, name: str) -> Series:
         return Series(name, self._column.rename(name))
 
-
-    def sort(self, descending: bool = False) -> Series:
-        order = "descending" if descending else "ascending"
+    def sort(self, descending: bool=False) -> Series:
+        order = 'descending' if descending else 'ascending'
         indices = pc.sort_indices(self._to_combined_array(), sort_keys=[(self.name, order)])
         result = pc.take(self._to_combined_array(), indices)
         return Series(self.name, result)
 
-    def argsort(self, descending: bool = False) -> Series:
+    def argsort(self, descending: bool=False) -> Series:
         from titanframe.core.dtypes import Int64
-        order = "descending" if descending else "ascending"
+        order = 'descending' if descending else 'ascending'
         indices = pc.sort_indices(self._to_combined_array(), sort_keys=[(self.name, order)])
-        return Series(f"{self.name}_argsort", indices)
-
+        return Series(f'{self.name}_argsort', indices)
 
     def unique(self) -> Series:
         result = pc.unique(self._to_combined_array())
@@ -267,11 +217,10 @@ class Series:
         vc = pc.value_counts(self._to_combined_array())
         dup_values = set()
         for item in vc.to_pylist():
-            if item["counts"].as_py() > 1:
-                dup_values.add(item["values"].as_py())
+            if item['counts'].as_py() > 1:
+                dup_values.add(item['values'].as_py())
         result = pa.array([v in dup_values for v in self.to_list()])
         return Series(self.name, result)
-
 
     def to_list(self) -> list[Any]:
         return self._column.to_pylist()
@@ -281,7 +230,6 @@ class Series:
 
     def to_pandas(self) -> Any:
         return self._to_chunked_array().to_pandas()
-
 
     def __getitem__(self, key: Any) -> Any:
         arr = self._to_combined_array()
@@ -299,27 +247,24 @@ class Series:
             mask = key._to_combined_array()
             result = pc.filter(arr, mask)
             return Series(self.name, result)
-        raise TypeError(f"Invalid index type: {type(key).__name__}")
+        raise TypeError(f'Invalid index type: {type(key).__name__}')
 
-    def head(self, n: int = 5) -> Series:
+    def head(self, n: int=5) -> Series:
         return self[:n]
 
-    def tail(self, n: int = 5) -> Series:
+    def tail(self, n: int=5) -> Series:
         return self[-n:]
-
 
     @property
     def str(self) -> SeriesStringAccessor:
-        """Access string operations."""
         return SeriesStringAccessor(self)
-
 
     def _scalar_or_array(self, other: Any) -> Any:
         if isinstance(other, Series):
             return other._to_combined_array()
         return pa.scalar(other)
 
-    def _binary_op(self, fn: Any, other: Any, reverse: bool = False) -> Series:
+    def _binary_op(self, fn: Any, other: Any, reverse: bool=False) -> Series:
         arr = self._to_combined_array()
         other_val = self._scalar_or_array(other)
         if reverse:
@@ -328,24 +273,19 @@ class Series:
             result = fn(arr, other_val)
         return Series(self.name, result)
 
-
     def __repr__(self) -> str:
         values = self.to_list()
         max_show = 10
-        lines = [f"Series({self.name!r}, dtype={self.dtype})"]
+        lines = [f'Series({self.name!r}, dtype={self.dtype})']
         for i, v in enumerate(values[:max_show]):
-            lines.append(f"  {i}: {v}")
+            lines.append(f'  {i}: {v}')
         if len(values) > max_show:
-            lines.append(f"  ... ({len(values) - max_show} more)")
-        lines.append(f"Length: {len(values)}")
-        return "\n".join(lines)
-
-
+            lines.append(f'  ... ({len(values) - max_show} more)')
+        lines.append(f'Length: {len(values)}')
+        return '\n'.join(lines)
 
 class SeriesStringAccessor:
-    """String operations on an eager Series (uses pyarrow.compute)."""
-
-    __slots__ = ("_series",)
+    __slots__ = ('_series',)
 
     def __init__(self, series: Series):
         self._series = series
@@ -387,7 +327,7 @@ class SeriesStringAccessor:
     def replace(self, pattern: str, replacement: str) -> Series:
         return self._apply(pc.replace_substring, pattern, replacement)
 
-    def slice(self, start: int, length: Optional[int] = None) -> Series:
+    def slice(self, start: int, length: Optional[int]=None) -> Series:
         if length is not None:
             return self._apply(pc.utf8_slice_codeunits, start, start + length)
         return self._apply(pc.utf8_slice_codeunits, start)

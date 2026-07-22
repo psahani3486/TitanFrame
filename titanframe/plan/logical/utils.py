@@ -1,61 +1,22 @@
-"""
-Logical Plan Utilities
-========================
-
-Shared helper functions for schema inference used by logical plan nodes.
-"""
-
 from __future__ import annotations
-
 from titanframe.core.dtypes import DType, Float64, Int64, Bool, promote
 from titanframe.core.schema import Schema
-from titanframe.expr.base import (
-    Expr, AliasExpr, AggExpr, CastExpr, BinaryExpr, UnaryExpr,
-    Op, UnaryOp, AggOp,
-)
+from titanframe.expr.base import Expr, AliasExpr, AggExpr, CastExpr, BinaryExpr, UnaryExpr, Op, UnaryOp, AggOp
 from titanframe.expr.column_expr import ColumnExpr
 from titanframe.expr.literal_expr import LiteralExpr
 
-
 def infer_expr_name(expr: Expr) -> str:
-    """
-    Infer an output column name from an expression.
-
-    Used by Projection and Aggregation nodes to determine column names
-    when the user doesn't provide an explicit alias.
-
-    Rules:
-        - ``AliasExpr`` → the alias name
-        - ``ColumnExpr`` → the column name
-        - ``AggExpr`` → ``"{op}_{child_name}"`` (e.g., ``"sum_revenue"``)
-        - Fallback → ``repr(expr)``
-    """
     if isinstance(expr, AliasExpr):
         return expr.name
     if isinstance(expr, ColumnExpr):
         return expr.column_name
     if isinstance(expr, AggExpr):
         inner_name = infer_expr_name(expr.child)
-        return f"{expr.op.value}_{inner_name}"
+        return f'{expr.op.value}_{inner_name}'
     return repr(expr)
 
-
 def infer_expr_dtype(expr: Expr, input_schema: Schema) -> DType:
-    """
-    Infer the output dtype of an expression given an input schema.
-
-    This is a simplified inference used during logical planning.
-    Full type resolution happens during physical planning.
-
-    Args:
-        expr: The expression to infer the type for.
-        input_schema: The schema of the input data.
-
-    Returns:
-        The inferred output DType.
-    """
     from titanframe.core.dtypes import from_value
-
     if isinstance(expr, AliasExpr):
         return infer_expr_dtype(expr.child, input_schema)
     if isinstance(expr, ColumnExpr):
@@ -86,9 +47,7 @@ def infer_expr_dtype(expr: Expr, input_schema: Schema) -> DType:
         if expr.op in (AggOp.ANY, AggOp.ALL):
             return Bool
         return child_dt
-
     from titanframe.expr.cast_expr import TryCastExpr
     if isinstance(expr, TryCastExpr):
         return expr.target_dtype
-
     return Float64

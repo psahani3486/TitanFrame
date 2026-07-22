@@ -1,14 +1,5 @@
-"""
-Projection Node — SELECT / WithColumns
-========================================
-
-Represents column selection or computed column expressions.
-"""
-
 from __future__ import annotations
-
 from typing import Sequence
-
 from titanframe.core.dtypes import Float64, Int64, Utf8, Bool
 from titanframe.core.schema import Schema
 from titanframe.expr.base import Expr, AliasExpr, AggExpr, CastExpr, BinaryExpr, UnaryExpr
@@ -16,28 +7,18 @@ from titanframe.expr.column_expr import ColumnExpr
 from titanframe.expr.literal_expr import LiteralExpr
 from titanframe.plan.logical.node import LogicalPlan
 
-
 def _infer_expr_name(expr: Expr) -> str:
-    """Infer an output column name from an expression."""
     if isinstance(expr, AliasExpr):
         return expr.name
     if isinstance(expr, ColumnExpr):
         return expr.column_name
     if isinstance(expr, AggExpr):
         inner_name = _infer_expr_name(expr.child)
-        return f"{expr.op.value}_{inner_name}"
+        return f'{expr.op.value}_{inner_name}'
     return repr(expr)
 
-
 def _infer_expr_dtype(expr: Expr, input_schema: Schema):
-    """
-    Infer the output dtype of an expression given an input schema.
-
-    This is a simplified inference — full type resolution happens during
-    physical planning.
-    """
     from titanframe.core.dtypes import promote, from_value
-
     if isinstance(expr, AliasExpr):
         return _infer_expr_dtype(expr.child, input_schema)
     if isinstance(expr, ColumnExpr):
@@ -71,22 +52,10 @@ def _infer_expr_dtype(expr: Expr, input_schema: Schema):
         if expr.op in (AggOp.ANY, AggOp.ALL):
             return Bool
         return child_dt
-
     return Float64
 
-
 class Projection(LogicalPlan):
-    """
-    Column selection and/or computed column expressions.
-
-    Equivalent to SQL's ``SELECT expr1 AS name1, expr2 AS name2, ...``.
-
-    Attributes:
-        input: The child plan node.
-        exprs: List of expressions to compute.
-    """
-
-    __slots__ = ("input", "exprs")
+    __slots__ = ('input', 'exprs')
 
     def __init__(self, input: LogicalPlan, exprs: Sequence[Expr]):
         self.input = input
@@ -105,7 +74,7 @@ class Projection(LogicalPlan):
         return [self.input]
 
     def node_name(self) -> str:
-        return "Projection"
+        return 'Projection'
 
     def node_description(self) -> str:
         expr_strs = [_infer_expr_name(e) for e in self.exprs]
@@ -114,20 +83,8 @@ class Projection(LogicalPlan):
     def with_children(self, new_children: list[LogicalPlan]) -> LogicalPlan:
         return Projection(new_children[0], self.exprs)
 
-
 class Filter(LogicalPlan):
-    """
-    Row filtering — ``WHERE predicate``.
-
-    The predicate must evaluate to a boolean. The output schema is
-    identical to the input schema (only rows change).
-
-    Attributes:
-        input: The child plan node.
-        predicate: Boolean expression for filtering.
-    """
-
-    __slots__ = ("input", "predicate")
+    __slots__ = ('input', 'predicate')
 
     def __init__(self, input: LogicalPlan, predicate: Expr):
         self.input = input
@@ -140,33 +97,18 @@ class Filter(LogicalPlan):
         return [self.input]
 
     def node_name(self) -> str:
-        return "Filter"
+        return 'Filter'
 
     def node_description(self) -> str:
-        return f"predicate={self.predicate}"
+        return f'predicate={self.predicate}'
 
     def with_children(self, new_children: list[LogicalPlan]) -> LogicalPlan:
         return Filter(new_children[0], self.predicate)
 
-
 class Aggregation(LogicalPlan):
-    """
-    Group-by aggregation.
+    __slots__ = ('input', 'group_keys', 'agg_exprs')
 
-    Attributes:
-        input: Child plan.
-        group_keys: List of column expressions used as group keys.
-        agg_exprs: List of aggregation expressions (e.g., col("x").sum()).
-    """
-
-    __slots__ = ("input", "group_keys", "agg_exprs")
-
-    def __init__(
-        self,
-        input: LogicalPlan,
-        group_keys: Sequence[Expr],
-        agg_exprs: Sequence[Expr],
-    ):
+    def __init__(self, input: LogicalPlan, group_keys: Sequence[Expr], agg_exprs: Sequence[Expr]):
         self.input = input
         self.group_keys = list(group_keys)
         self.agg_exprs = list(agg_exprs)
@@ -188,7 +130,7 @@ class Aggregation(LogicalPlan):
         return [self.input]
 
     def node_name(self) -> str:
-        return "Aggregation"
+        return 'Aggregation'
 
     def node_description(self) -> str:
         keys = [_infer_expr_name(k) for k in self.group_keys]
@@ -198,29 +140,10 @@ class Aggregation(LogicalPlan):
     def with_children(self, new_children: list[LogicalPlan]) -> LogicalPlan:
         return Aggregation(new_children[0], self.group_keys, self.agg_exprs)
 
-
 class Join(LogicalPlan):
-    """
-    Relational join.
+    __slots__ = ('left', 'right', 'on', 'how', 'suffix')
 
-    Attributes:
-        left: Left input plan.
-        right: Right input plan.
-        on: Join key column names (present in both inputs).
-        how: Join type (inner, left, right, outer, cross).
-        suffix: Suffix for right-side duplicate column names.
-    """
-
-    __slots__ = ("left", "right", "on", "how", "suffix")
-
-    def __init__(
-        self,
-        left: LogicalPlan,
-        right: LogicalPlan,
-        on: Sequence[str],
-        how: str = "inner",
-        suffix: str = "_right",
-    ):
+    def __init__(self, left: LogicalPlan, right: LogicalPlan, on: Sequence[str], how: str='inner', suffix: str='_right'):
         self.left = left
         self.right = right
         self.on = list(on)
@@ -236,25 +159,16 @@ class Join(LogicalPlan):
         return [self.left, self.right]
 
     def node_name(self) -> str:
-        return "Join"
+        return 'Join'
 
     def node_description(self) -> str:
-        return f"on={self.on}, how={self.how!r}"
+        return f'on={self.on}, how={self.how!r}'
 
     def with_children(self, new_children: list[LogicalPlan]) -> LogicalPlan:
         return Join(new_children[0], new_children[1], self.on, self.how, self.suffix)
 
-
 class Sort(LogicalPlan):
-    """
-    Sort / ORDER BY.
-
-    Attributes:
-        input: Child plan.
-        sort_exprs: List of SortExpr or column expressions.
-    """
-
-    __slots__ = ("input", "sort_exprs")
+    __slots__ = ('input', 'sort_exprs')
 
     def __init__(self, input: LogicalPlan, sort_exprs: Sequence[Expr]):
         self.input = input
@@ -267,28 +181,18 @@ class Sort(LogicalPlan):
         return [self.input]
 
     def node_name(self) -> str:
-        return "Sort"
+        return 'Sort'
 
     def node_description(self) -> str:
-        return f"by=[{', '.join(repr(e) for e in self.sort_exprs)}]"
+        return f"by=[{', '.join((repr(e) for e in self.sort_exprs))}]"
 
     def with_children(self, new_children: list[LogicalPlan]) -> LogicalPlan:
         return Sort(new_children[0], self.sort_exprs)
 
-
 class Limit(LogicalPlan):
-    """
-    LIMIT / HEAD / TAIL.
+    __slots__ = ('input', 'n', 'offset')
 
-    Attributes:
-        input: Child plan.
-        n: Maximum number of rows.
-        offset: Number of rows to skip before taking.
-    """
-
-    __slots__ = ("input", "n", "offset")
-
-    def __init__(self, input: LogicalPlan, n: int, offset: int = 0):
+    def __init__(self, input: LogicalPlan, n: int, offset: int=0):
         self.input = input
         self.n = n
         self.offset = offset
@@ -300,29 +204,20 @@ class Limit(LogicalPlan):
         return [self.input]
 
     def node_name(self) -> str:
-        return "Limit"
+        return 'Limit'
 
     def node_description(self) -> str:
         if self.offset > 0:
-            return f"n={self.n}, offset={self.offset}"
-        return f"n={self.n}"
+            return f'n={self.n}, offset={self.offset}'
+        return f'n={self.n}'
 
     def with_children(self, new_children: list[LogicalPlan]) -> LogicalPlan:
         return Limit(new_children[0], self.n, self.offset)
 
-
 class Distinct(LogicalPlan):
-    """
-    Remove duplicate rows.
+    __slots__ = ('input', 'subset')
 
-    Attributes:
-        input: Child plan.
-        subset: Optional list of columns to consider. If None, all columns.
-    """
-
-    __slots__ = ("input", "subset")
-
-    def __init__(self, input: LogicalPlan, subset: Sequence[str] | None = None):
+    def __init__(self, input: LogicalPlan, subset: Sequence[str] | None=None):
         self.input = input
         self.subset = list(subset) if subset else None
 
@@ -333,30 +228,23 @@ class Distinct(LogicalPlan):
         return [self.input]
 
     def node_name(self) -> str:
-        return "Distinct"
+        return 'Distinct'
 
     def node_description(self) -> str:
         if self.subset:
-            return f"subset={self.subset}"
-        return "all columns"
+            return f'subset={self.subset}'
+        return 'all columns'
 
     def with_children(self, new_children: list[LogicalPlan]) -> LogicalPlan:
         return Distinct(new_children[0], self.subset)
 
-
 class Union(LogicalPlan):
-    """
-    Vertical concatenation (UNION ALL).
-
-    Both inputs must have identical schemas.
-    """
-
-    __slots__ = ("inputs",)
+    __slots__ = ('inputs',)
 
     def __init__(self, inputs: Sequence[LogicalPlan]):
         self.inputs = list(inputs)
         if len(self.inputs) < 2:
-            raise ValueError("Union requires at least 2 inputs")
+            raise ValueError('Union requires at least 2 inputs')
 
     def output_schema(self) -> Schema:
         return self.inputs[0].output_schema()
@@ -365,10 +253,10 @@ class Union(LogicalPlan):
         return list(self.inputs)
 
     def node_name(self) -> str:
-        return "Union"
+        return 'Union'
 
     def node_description(self) -> str:
-        return f"inputs={len(self.inputs)}"
+        return f'inputs={len(self.inputs)}'
 
     def with_children(self, new_children: list[LogicalPlan]) -> LogicalPlan:
         return Union(new_children)
