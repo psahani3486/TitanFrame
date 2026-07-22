@@ -1,0 +1,115 @@
+.visualizer-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.plan-meta-badge {
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.82rem;
+  font-family: monospace;
+}
+
+.canvas-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.dag-custom-node {
+  background: rgba(30, 41, 59, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  color: #f8fafc;
+}
+
+.dag-custom-node.scan { border-color: #38bdf8; }
+.dag-custom-node.filter { border-color: #fbbf24; }
+.dag-custom-node.agg { border-color: #818cf8; }
+
+.node-icon-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+}
+
+
+.node-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.node-metrics-bar {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.7rem;
+  color: #38bdf8;
+  margin-top: 0.35rem;
+  font-family: monospace;
+}
+
+.node-inspector-panel {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+}
+
+.node-inspector-panel h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #f8fafc;
+}
+
+.inspector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.inspector-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.ins-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ins-val {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.ins-val.text-cyan { color: #38bdf8; }
+.ins-val.text-violet { color: #818cf8; }
+.ins-val.text-gold { color: #fbbf24; }
+.ins-val.text-emerald { color: #34d399; }
+
+
+.dag-handle {
+  background: #38bdf8 !important;
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.react-flow-controls-custom button {
+  background: #1e293b !important;
+  fill: #f8fafc !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}

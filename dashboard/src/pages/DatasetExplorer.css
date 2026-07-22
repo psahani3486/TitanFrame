@@ -1,0 +1,229 @@
+.dataset-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.search-box input {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  color: #f8fafc;
+  font-size: 0.88rem;
+  width: 240px;
+}
+
+.dataset-grid-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.datasets-sidebar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.dataset-card-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dataset-card-item:hover {
+  background: rgba(56, 189, 248, 0.08);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.dataset-card-item.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(129, 140, 248, 0.15));
+  border-color: #38bdf8;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.15);
+}
+
+.dataset-type-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  min-width: 48px;
+  text-align: center;
+}
+
+
+.dataset-card-title {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.dataset-card-size {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.dataset-detail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stats-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat-val {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.stat-val.text-cyan { color: #38bdf8; }
+.stat-val.text-violet { color: #818cf8; }
+.stat-val.text-gold { color: #fbbf24; }
+.stat-val.text-emerald { color: #34d399; }
+
+.stat-sub {
+  font-size: 0.72rem;
+  color: #64748b;
+}
+
+
+.detail-title {
+  margin: 0 0 0.35rem 0;
+  font-size: 1.35rem;
+  color: #f8fafc;
+}
+
+.detail-path code {
+  color: #38bdf8;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.schema-section h3,
+.preview-section h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.05rem;
+  color: #f8fafc;
+}
+
+.schema-badge-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 0.25rem;
+}
+
+.schema-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  font-size: 0.82rem;
+}
+
+.col-name {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.col-type {
+  color: #818cf8;
+  font-size: 0.75rem;
+  font-family: monospace;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  max-height: 420px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.preview-table th {
+  background: #1e293b;
+  color: #94a3b8;
+  font-weight: 600;
+  text-align: left;
+  padding: 0.6rem 0.85rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preview-table td {
+  padding: 0.5rem 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  white-space: nowrap;
+}
+
+.preview-table tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.row-num {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.loading-state,
+.empty-preview-prompt {
+  padding: 3rem;
+  text-align: center;
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 8px;
+}
