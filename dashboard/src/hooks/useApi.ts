@@ -109,7 +109,7 @@ export interface SystemInfo {
 }
 
 const getBaseUrl = () => {
-  let url = import.meta.env.VITE_API_URL || '';
+  let url = import.meta.env.VITE_API_URL || import.meta.env.VITE_URL || '';
   if (url) {
     url = url.trim().replace(/\/$/, '');
     if (typeof window !== 'undefined' && window.location.protocol === 'https:' && url.startsWith('http://')) {
