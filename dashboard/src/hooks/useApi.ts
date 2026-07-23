@@ -108,17 +108,7 @@ export interface SystemInfo {
   titanframe_version: string;
 }
 
-export const getApiUrl = (): string => {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('TITANFRAME_API_URL');
-    if (stored && stored.trim()) {
-      let url = stored.trim().replace(/\/$/, '');
-      if (window.location.protocol === 'https:' && url.startsWith('http://')) {
-        url = url.replace(/^http:\/\//, 'https://');
-      }
-      return url;
-    }
-  }
+const getBaseUrl = () => {
   let url = import.meta.env.VITE_API_URL || import.meta.env.VITE_URL || '';
   if (url) {
     url = url.trim().replace(/\/$/, '');
@@ -132,22 +122,6 @@ export const getApiUrl = (): string => {
   }
   return '';
 };
-
-export const setApiUrl = (url: string) => {
-  if (typeof window !== 'undefined') {
-    if (url && url.trim()) {
-      let cleanUrl = url.trim().replace(/\/$/, '');
-      if (window.location.protocol === 'https:' && cleanUrl.startsWith('http://')) {
-        cleanUrl = cleanUrl.replace(/^http:\/\//, 'https://');
-      }
-      localStorage.setItem('TITANFRAME_API_URL', cleanUrl);
-    } else {
-      localStorage.removeItem('TITANFRAME_API_URL');
-    }
-  }
-};
-
-const getBaseUrl = getApiUrl;
 
 export const api = {
   async getMetrics(): Promise<TelemetryData> {

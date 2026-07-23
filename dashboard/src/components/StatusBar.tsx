@@ -1,4 +1,6 @@
-import { formatBytes, setApiUrl, getApiUrl } from '../hooks/useApi';
+import React from 'react';
+import './StatusBar.css';
+import { formatBytes } from '../hooks/useApi';
 import type { TelemetryData } from '../hooks/useApi';
 
 interface StatusBarProps {
@@ -18,20 +20,11 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   const ramBudget = telemetry?.memory.ram_budget_bytes || 0;
   const metrics = telemetry?.metrics;
 
-  const handleConfigureApi = () => {
-    const current = getApiUrl() || 'https://titanframe-backend.onrender.com';
-    const input = window.prompt('Enter your Render Backend URL (e.g. https://your-app.onrender.com):', current);
-    if (input !== null) {
-      setApiUrl(input);
-      window.location.reload();
-    }
-  };
-
   return (
     <footer className="titan-statusbar">
-      <div className="status-item" style={{ cursor: 'pointer' }} onClick={handleConfigureApi} title="Click to configure Backend API URL">
+      <div className="status-item">
         <span className={`status-dot ${isConnected ? 'online' : 'offline'}`}></span>
-        <span>{isConnected ? 'Engine Connected' : 'Engine Disconnected (Set URL)'}</span>
+        <span>{isConnected ? 'Engine Connected' : 'Engine Disconnected'}</span>
       </div>
 
       {telemetry && (

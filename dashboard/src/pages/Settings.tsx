@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { api, getApiUrl, setApiUrl } from '../hooks/useApi';
+import './Settings.css';
+import { api } from '../hooks/useApi';
 import type { SystemInfo, TelemetryData } from '../hooks/useApi';
 
 interface SettingsProps {
@@ -11,7 +12,6 @@ export const Settings: React.FC<SettingsProps> = ({ telemetry }) => {
 
   const [activeSubTab, setActiveSubTab] = useState<'general' | 'advanced'>('general');
 
-  const [apiUrlInput, setApiUrlInput] = useState<string>(getApiUrl());
   const [ramLimitMB, setRamLimitMB] = useState<number>(50);
   const [spillThresholdPct, setSpillThresholdPct] = useState<number>(85);
   const [chunkSizeRows, setChunkSizeRows] = useState<number>(65536);
@@ -91,38 +91,12 @@ export const Settings: React.FC<SettingsProps> = ({ telemetry }) => {
       </div>
 
       <div className="settings-grid">
-        {}
+        { }
         <div className="glass-panel settings-panel">
           {activeSubTab === 'general' ? (
             <>
-              <h3>Backend Connection & Engine Tuning</h3>
+              <h3>Engine & Memory Tuning</h3>
               {successMsg && <div className="success-banner">Status: {successMsg}</div>}
-
-              <div className="form-group" style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '1.5rem' }}>
-                <label style={{ color: '#38bdf8', fontWeight: 600 }}>Production Backend API URL (Render):</label>
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                  <input
-                    type="text"
-                    placeholder="https://your-backend.onrender.com"
-                    value={apiUrlInput}
-                    onChange={(e) => setApiUrlInput(e.target.value)}
-                    style={{ flex: 1 }}
-                  />
-                  <button
-                    className="btn btn-accent"
-                    onClick={() => {
-                      setApiUrl(apiUrlInput);
-                      setSuccessMsg('Backend API URL saved! Reloading connection...');
-                      setTimeout(() => window.location.reload(), 800);
-                    }}
-                  >
-                    Save URL
-                  </button>
-                </div>
-                <span className="hint">
-                  Enter your deployed Render backend service URL (e.g. <code>https://titanframe-backend.onrender.com</code>).
-                </span>
-              </div>
 
               <div className="form-group">
                 <label>Host RAM Limit (MB):</label>
@@ -241,7 +215,7 @@ export const Settings: React.FC<SettingsProps> = ({ telemetry }) => {
           </button>
         </div>
 
-        {}
+        { }
         <div className="glass-panel sysinfo-panel">
           <h3>Environment & Cluster Info</h3>
 
