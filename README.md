@@ -1,4 +1,4 @@
-# 🚀 TitanFrame
+#  TitanFrame
 
 <p align="center">
   <img src="Screenshots/dashboard.png" alt="TitanFrame Executive Dashboard" width="100%" />
@@ -19,7 +19,7 @@
 
 ---
 
-## 💡 Overview
+##  Overview
 
 **TitanFrame** is an out-of-core, GPU-accelerated DataFrame library designed to process datasets **100x larger than system RAM** with zero code rewrites. Powered by Apache Arrow IPC streaming, CuPy/Triton CUDA kernels, and a lazy DAG query optimizer, TitanFrame seamlessly scales from local developer laptops to cloud cluster deployments.
 
@@ -27,51 +27,51 @@ TitanFrame includes **TitanFrame Studio**, a modern React-based web dashboard of
 
 ---
 
-## 🖼️ Web Studio Showcase & Screenshots
+##  Web Studio Showcase & Screenshots
 
-### 1. 📊 Executive Telemetry Dashboard
+### 1.  Executive Telemetry Dashboard
 Real-time engine telemetry, host RAM allocation timelines, NVMe spill triggers, and active dataset overviews.
 ![Executive Dashboard](Screenshots/dashboard.png)
 
 ---
 
-### 2. ⚡ SQL Analytics Workspace
+### 2.  SQL Analytics Workspace
 Write, execute, and analyze vector queries against 100M+ row datasets with out-of-core chunk streaming.
 ![SQL Analytics Workspace](Screenshots/sql%20analytics.png)
 
 ---
 
-### 3. 📁 Dataset Explorer & Statistical Profiler
+### 3.  Dataset Explorer & Statistical Profiler
 Inspect schema metadata, column data types, distinct value distributions, and preview raw contents of 10GB+ CSV/Parquet files.
 ![Dataset Explorer](Screenshots/datasets.png)
 
 ---
 
-### 4. 🌐 Interactive Query DAG Visualizer
+### 4.  Interactive Query DAG Visualizer
 Visualize directed acyclic graphs (DAG) representing TitanFrame logical and physical execution plan trees.
 ![Query Plan Visualizer](Screenshots/Query%20plan%20and%20DAG.png)
 
 ---
 
-### 5. ⏱️ Vector Engine Benchmark Suite
+### 5.  Vector Engine Benchmark Suite
 Comparative performance benchmark testing TitanFrame out-of-core vector engine against Pandas and Polars.
 ![Benchmark Dashboard](Screenshots/Benchmarks.png)
 
 ---
 
-### 6. 🖥️ Memory & GPU Out-of-Core Monitor
+### 6.  Memory & GPU Out-of-Core Monitor
 Monitor hierarchical memory spilling (GPU VRAM ➔ System RAM ➔ NVMe Arrow IPC storage) and active CUDA allocations.
 ![Memory & GPU Monitor](Screenshots/gpu%20monitor.png)
 
 ---
 
-### 7. ⚙️ Settings & Cluster Configuration
+### 7.  Settings & Cluster Configuration
 Configure host RAM limits, NVMe spill thresholds, SIMD vectorization, and production backend API connection URLs.
 ![Settings & Config](Screenshots/settings.png)
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
 - **Pandas & Polars Compatible API**: Drop-in replacement for standard DataFrame filters, group-by aggregations, joins, and projections.
 - **Lazy DAG Execution**: Builds an optimized logical query plan before execution, fusing operations and eliminating redundant computations.
@@ -82,7 +82,7 @@ Configure host RAM limits, NVMe spill thresholds, SIMD vectorization, and produc
 
 ---
 
-## 🏎️ Performance Benchmark
+##  Performance Benchmark
 
 *Benchmarked on 6.0M row TPC-H `lineitem` and 109M row eCommerce datasets:*
 
@@ -94,7 +94,7 @@ Configure host RAM limits, NVMe spill thresholds, SIMD vectorization, and produc
 
 ---
 
-## 📦 Installation
+##  Installation
 
 ### CPU Installation
 ```bash
@@ -108,7 +108,7 @@ pip install titanframe[gpu]
 
 ---
 
-## 💻 Quickstart Code
+##  Quickstart Code
 
 ### Eager Mode (Pandas Style)
 ```python
@@ -155,7 +155,7 @@ print(res)
 
 ---
 
-## 🚀 Launching TitanFrame Studio Web Dashboard
+##  Launching TitanFrame Studio Web Dashboard
 
 Launch the live telemetry backend & interactive web dashboard locally:
 
@@ -175,7 +175,7 @@ Then visit **`http://localhost:8080`** or open the React frontend at **`http://l
 
 ---
 
-## 🌐 Production Deployment Guide
+##  Production Deployment Guide
 
 ### Deploy Backend on Render (Python Web Service)
 1. Create a new Web Service on [Render.com](https://dashboard.render.com/) pointing to your GitHub repository.
@@ -192,6 +192,6 @@ Then visit **`http://localhost:8080`** or open the React frontend at **`http://l
 
 ---
 
-## 📄 License
+##  License
 
 TitanFrame is released under the **Apache License 2.0**.
