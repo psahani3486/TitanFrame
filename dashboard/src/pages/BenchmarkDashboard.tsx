@@ -82,12 +82,15 @@ export const BenchmarkDashboard: React.FC<BenchmarkDashboardProps> = ({ datasets
             onChange={(e) => setTargetDataset(e.target.value)}
             className="bench-select"
           >
-            <option value="lineitem.parquet">lineitem.parquet (66.7 MB)</option>
-            {datasets.map((d) => (
-              <option key={d.path} value={d.path}>
-                {d.name} ({d.size_formatted})
-              </option>
-            ))}
+            {datasets.length === 0 ? (
+              <option value="lineitem.parquet">lineitem.parquet (66.7 MB)</option>
+            ) : (
+              datasets.map((d) => (
+                <option key={d.path} value={d.path}>
+                  {d.name} ({d.size_formatted})
+                </option>
+              ))
+            )}
           </select>
           <button className="btn btn-accent" onClick={handleRunBenchmark} disabled={running}>
             {running ? 'Running Benchmark...' : 'Trigger Benchmark Run'}

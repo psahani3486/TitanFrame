@@ -52,6 +52,17 @@ GROUP BY product_id
 ORDER BY total_revenue DESC
 LIMIT 20;`,
   },
+  {
+    id: 'lineitem_summary',
+    title: 'TPC-H Lineitem Summary',
+    sql: `-- Compute summary metrics for TPC-H Lineitem dataset
+SELECT l_returnflag, 
+       SUM(l_quantity) AS sum_qty, 
+       SUM(l_extendedprice) AS sum_base_price, 
+       AVG(l_discount) AS avg_disc
+FROM lineitem
+GROUP BY l_returnflag;`,
+  },
 ];
 
 export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
@@ -59,9 +70,14 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
   selectedDatasetPath,
   onNavigateToDag,
 }) => {
-  const [targetDataset, setTargetDataset] = useState<string>(
-    selectedDatasetPath || datasets[0]?.path || 'dataset/2019-Oct.csv'
-  );
+  const getDefaultDataset = () => {
+    if (selectedDatasetPath) return selectedDatasetPath;
+    const octDs = datasets.find((d) => d.path.includes('2019-Oct'));
+    if (octDs) return octDs.path;
+    return datasets[0]?.path || 'dataset/2019-Oct.csv';
+  };
+
+  const [targetDataset, setTargetDataset] = useState<string>(getDefaultDataset);
   const [selectedPresetId, setSelectedPresetId] = useState<string>('top_brands');
   const [sqlCode, setSqlCode] = useState<string>(PRESET_QUERIES[0].sql);
 
@@ -76,8 +92,25 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
   const pageSize = 10;
 
   useEffect(() => {
-    if (selectedDatasetPath) setTargetDataset(selectedDatasetPath);
+    if (selectedDatasetPath) {
+      setTargetDataset(selectedDatasetPath);
+      if (selectedDatasetPath.includes('lineitem')) {
+        setSelectedPresetId('lineitem_summary');
+        setSqlCode(PRESET_QUERIES[3].sql);
+      }
+    }
   }, [selectedDatasetPath]);
+
+  const handleDatasetChange = (path: string) => {
+    setTargetDataset(path);
+    if (path.includes('lineitem')) {
+      setSelectedPresetId('lineitem_summary');
+      setSqlCode(PRESET_QUERIES[3].sql);
+    } else if (selectedPresetId === 'lineitem_summary') {
+      setSelectedPresetId('top_brands');
+      setSqlCode(PRESET_QUERIES[0].sql);
+    }
+  };
 
   const handleSelectPreset = (pId: string) => {
     setSelectedPresetId(pId);
@@ -187,7 +220,7 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
             <label>Target Dataset File:</label>
             <select
               value={targetDataset}
-              onChange={(e) => setTargetDataset(e.target.value)}
+              onChange={(e) => handleDatasetChange(e.target.value)}
             >
               {datasets.map((d) => (
                 <option key={d.path} value={d.path}>

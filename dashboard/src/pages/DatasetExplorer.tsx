@@ -47,10 +47,10 @@ export const DatasetExplorer: React.FC<DatasetExplorerProps> = ({
   };
 
   useEffect(() => {
-    if (activeDataset?.path) {
-      api.getDatasetStats(activeDataset.path).then(setDatasetStats).catch(console.error);
+    if (activeDataset?.path && !previewData && !loadingPreview) {
+      handlePreview(activeDataset.path);
     }
-  }, [activeDataset]);
+  }, [activeDataset?.path]);
 
   const filteredDatasets = datasets.filter((d) =>
     d.name.toLowerCase().includes(searchTerm.toLowerCase())

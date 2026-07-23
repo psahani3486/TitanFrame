@@ -36,20 +36,77 @@ def _run_query_async(query_id: str, preset: str, dataset_file: str, custom_param
             raise ValueError(f'Unsupported file format: {dataset_file}')
         tracker.set_stage('Projection Pruning', stage_idx=2, rows_rate=3200000.0)
         tracker.log_query_event(query_id, f'Built initial logical scan plan. Preset: {preset}')
+        
+        has_brand = 'brand' in lf.schema
+        has_event_type = 'event_type' in lf.schema
+        has_tpch = 'l_returnflag' in lf.schema or 'l_quantity' in lf.schema
+
         if preset == 'top_brands':
             tracker.set_stage('Predicate Filter', stage_idx=3, rows_rate=4100000.0)
-            tracker.log_query_event(query_id, "Applying filter: event_type == 'purchase'")
             tracker.set_stage('Hash Aggregation', stage_idx=4, rows_rate=3800000.0)
-            res_df = lf.filter(tf.col('event_type') == 'purchase').group_by('brand').agg(tf.col('price').sum().alias('total_revenue'), tf.col('price').count().alias('purchase_count'), tf.col('price').mean().alias('avg_price')).sort('total_revenue', descending=True).head(20).collect()
+            if has_brand:
+                tracker.log_query_event(query_id, "Applying filter: event_type == 'purchase'")
+                filter_lf = lf.filter(tf.col('event_type') == 'purchase') if has_event_type else lf
+                res_df = filter_lf.group_by('brand').agg(
+                    tf.col('price').sum().alias('total_revenue'),
+                    tf.col('price').count().alias('purchase_count'),
+                    tf.col('price').mean().alias('avg_price')
+                ).sort('total_revenue', descending=True).head(20).collect()
+            elif has_tpch:
+                tracker.log_query_event(query_id, "Applying TPC-H Lineitem Discount Aggregation")
+                res_df = lf.group_by('l_returnflag').agg(
+                    tf.col('l_extendedprice').sum().alias('total_revenue'),
+                    tf.col('l_quantity').sum().alias('purchase_count'),
+                    tf.col('l_discount').mean().alias('avg_price')
+                ).sort('total_revenue', descending=True).head(20).collect()
+            else:
+                res_df = lf.head(20).collect()
         elif preset == 'category_funnel':
             tracker.set_stage('Hash Aggregation', stage_idx=4, rows_rate=3500000.0)
-            tracker.log_query_event(query_id, 'Applying category funnel aggregation')
-            res_df = lf.group_by('category_code').agg(tf.col('price').count().alias('event_count'), tf.col('price').sum().alias('total_value')).sort('event_count', descending=True).head(20).collect()
+            if 'category_code' in lf.schema:
+                tracker.log_query_event(query_id, 'Applying category funnel aggregation')
+                res_df = lf.group_by('category_code').agg(
+                    tf.col('price').count().alias('event_count'),
+                    tf.col('price').sum().alias('total_value')
+                ).sort('event_count', descending=True).head(20).collect()
+            elif has_tpch:
+                tracker.log_query_event(query_id, 'Applying TPC-H Returnflag funnel aggregation')
+                res_df = lf.group_by('l_returnflag').agg(
+                    tf.col('l_quantity').count().alias('event_count'),
+                    tf.col('l_extendedprice').sum().alias('total_value')
+                ).sort('event_count', descending=True).head(20).collect()
+            else:
+                res_df = lf.head(20).collect()
         elif preset == 'high_value_products':
             tracker.set_stage('Predicate Filter', stage_idx=3, rows_rate=4500000.0)
-            tracker.log_query_event(query_id, 'Filtering items with price > 500')
             tracker.set_stage('Hash Aggregation', stage_idx=4, rows_rate=3900000.0)
-            res_df = lf.filter(tf.col('price') > 500.0).filter(tf.col('event_type') == 'purchase').group_by('product_id').agg(tf.col('price').sum().alias('total_revenue'), tf.col('price').count().alias('purchases')).sort('total_revenue', descending=True).head(20).collect()
+            if 'product_id' in lf.schema and 'price' in lf.schema:
+                tracker.log_query_event(query_id, 'Filtering items with price > 500')
+                filter_lf = lf.filter(tf.col('price') > 500.0)
+                if has_event_type:
+                    filter_lf = filter_lf.filter(tf.col('event_type') == 'purchase')
+                res_df = filter_lf.group_by('product_id').agg(
+                    tf.col('price').sum().alias('total_revenue'),
+                    tf.col('price').count().alias('purchases')
+                ).sort('total_revenue', descending=True).head(20).collect()
+            elif has_tpch:
+                tracker.log_query_event(query_id, 'Filtering TPC-H items with quantity > 10')
+                res_df = lf.filter(tf.col('l_quantity') > 10).group_by('l_partkey').agg(
+                    tf.col('l_extendedprice').sum().alias('total_revenue'),
+                    tf.col('l_quantity').count().alias('purchases')
+                ).sort('total_revenue', descending=True).head(20).collect()
+            else:
+                res_df = lf.head(20).collect()
+        elif preset == 'lineitem_summary':
+            tracker.set_stage('Hash Aggregation', stage_idx=4, rows_rate=4000000.0)
+            if has_tpch:
+                res_df = lf.group_by('l_returnflag').agg(
+                    tf.col('l_quantity').sum().alias('sum_qty'),
+                    tf.col('l_extendedprice').sum().alias('sum_base_price'),
+                    tf.col('l_discount').mean().alias('avg_disc')
+                ).collect()
+            else:
+                res_df = lf.head(20).collect()
         else:
             res_df = lf.head(20).collect()
         tracker.set_stage('Output Sink', stage_idx=5, rows_rate=0.0)
