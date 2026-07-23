@@ -19,6 +19,50 @@ def _sanitize_val(v):
         return v
     return str(v)
 from typing import Dict, Any, Optional
+import random
+
+def _generate_sample_ecommerce_csv(filepath: str, num_rows: int = 50000, month_str: str = "2019-10"):
+    brands = ['apple', 'samsung', 'xiaomi', 'huawei', 'lg', 'sony', 'lenovo', 'asus', 'oppo', 'vivo']
+    categories = [
+        'electronics.smartphone',
+        'computers.notebook',
+        'appliances.kitchen.refrigerators',
+        'apparel.shoes',
+        'electronics.clocks',
+        'appliances.environment.air_conditioner'
+    ]
+    event_types = ['view', 'view', 'view', 'cart', 'purchase']
+    
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write("event_time,event_type,product_id,category_id,category_code,brand,price,user_id,user_session\n")
+        for i in range(num_rows):
+            day = (i % 28) + 1
+            hour = (i % 24)
+            minute = (i % 60)
+            sec = (i % 60)
+            etime = f"{month_str}-{day:02d} {hour:02d}:{minute:02d}:{sec:02d} UTC"
+            etype = random.choice(event_types)
+            pid = 1000000 + (i % 500)
+            cid = 2053013555631882655 + (i % 20)
+            ccode = random.choice(categories)
+            brand = random.choice(brands)
+            price = round(random.uniform(15.0, 1200.0), 2)
+            uid = 512000000 + (i % 1000)
+            session = f"session_{i % 5000}"
+            f.write(f"{etime},{etype},{pid},{cid},{ccode},{brand},{price},{uid},{session}\n")
+
+def _ensure_default_datasets():
+    try:
+        dataset_dir = os.path.join(os.getcwd(), 'dataset')
+        os.makedirs(dataset_dir, exist_ok=True)
+        oct_path = os.path.join(dataset_dir, '2019-Oct.csv')
+        nov_path = os.path.join(dataset_dir, '2019-Nov.csv')
+        if not os.path.exists(oct_path):
+            _generate_sample_ecommerce_csv(oct_path, 50000, "2019-10")
+        if not os.path.exists(nov_path):
+            _generate_sample_ecommerce_csv(nov_path, 50000, "2019-11")
+    except Exception as ex:
+        print(f"Warning: could not ensure default datasets: {ex}")
 
 def _run_query_async(query_id: str, preset: str, dataset_file: str, custom_params: Optional[dict]=None):
     try:
@@ -351,6 +395,7 @@ def start_dashboard(port=8000):
     if _server_thread is not None:
         print(f'Dashboard already running at http://localhost:{port}')
         return
+    _ensure_default_datasets()
     _server = ThreadingHTTPServer(('', port), DashboardRequestHandler)
     _server_thread = threading.Thread(target=_server.serve_forever, daemon=True)
     _server_thread.start()

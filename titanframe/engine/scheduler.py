@@ -12,8 +12,11 @@ class DAGScheduler:
         batches = []
         iterator = plan.execute(ctx)
         if show_progress:
-            from tqdm import tqdm
-            iterator = tqdm(iterator, desc='Executing Plan', unit='chunk', leave=False)
+            try:
+                from tqdm import tqdm
+                iterator = tqdm(iterator, desc='Executing Plan', unit='chunk', leave=False)
+            except ImportError:
+                pass
         try:
             for chunk in iterator:
                 tracker.update_query_progress(query_id, 1)
