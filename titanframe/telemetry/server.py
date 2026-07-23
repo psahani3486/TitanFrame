@@ -2,7 +2,7 @@ import json
 import os
 import threading
 import time
-from http.server import HTTPServer, SimpleHTTPRequestHandler
+from http.server import HTTPServer, ThreadingHTTPServer, SimpleHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 import titanframe as tf
 from titanframe.telemetry.tracker import tracker
@@ -154,14 +154,19 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
             self.send_cors_headers()
             self.end_headers()
             self.wfile.write(body)
+        except (ConnectionResetError, ConnectionAbortedError, BrokenPipeError):
+            pass
         except Exception as e:
-            err_body = json.dumps({'error': str(e)}).encode('utf-8')
-            self.send_response(500)
-            self.send_header('Content-Type', 'application/json')
-            self.send_header('Content-Length', str(len(err_body)))
-            self.send_cors_headers()
-            self.end_headers()
-            self.wfile.write(err_body)
+            try:
+                err_body = json.dumps({'error': str(e)}).encode('utf-8')
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', str(len(err_body)))
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(err_body)
+            except Exception:
+                pass
 
     def do_OPTIONS(self):
         self.send_response(204)
@@ -346,7 +351,7 @@ def start_dashboard(port=8000):
     if _server_thread is not None:
         print(f'Dashboard already running at http://localhost:{port}')
         return
-    _server = HTTPServer(('', port), DashboardRequestHandler)
+    _server = ThreadingHTTPServer(('', port), DashboardRequestHandler)
     _server_thread = threading.Thread(target=_server.serve_forever, daemon=True)
     _server_thread.start()
     print(f'TitanFrame Dashboard started at http://localhost:{port}')
