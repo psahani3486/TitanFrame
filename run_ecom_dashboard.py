@@ -25,4 +25,6 @@ def launch_dashboard(port: int=8080):
         tf.stop_dashboard()
         print('Dashboard server stopped.')
 if __name__ == '__main__':
-    launch_dashboard(port=8080)
+    port = int(os.environ.get("PORT", 8080))
+    launch_dashboard(port=port)
+
