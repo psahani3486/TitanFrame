@@ -73,9 +73,9 @@ def _run_query_async(query_id: str, preset: str, dataset_file: str, custom_param
         if not os.path.isabs(target_path):
             target_path = os.path.join(os.getcwd(), dataset_file)
         if target_path.endswith('.csv'):
-            lf = tf.scan_csv(target_path)
+            lf = tf.scan_csv(target_path).head(500000)
         elif target_path.endswith('.parquet'):
-            lf = tf.scan_parquet(target_path)
+            lf = tf.scan_parquet(target_path).head(500000)
         else:
             raise ValueError(f'Unsupported file format: {dataset_file}')
         tracker.set_stage('Projection Pruning', stage_idx=2, rows_rate=3200000.0)
