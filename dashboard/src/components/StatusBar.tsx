@@ -37,8 +37,8 @@ export const StatusBar: React.FC<StatusBarProps> = ({
 
           <div className="status-divider">|</div>
           <div className="status-item">
-            <span className="status-label">GPU:</span>
-            <span>{metrics?.gpu_pct ? `${metrics.gpu_pct.toFixed(1)}%` : '0.0%'}</span>
+            <span className="status-label">Engine:</span>
+            <span>{telemetry?.engine_status?.engine_mode === 'CUDA_GPU' ? 'CUDA 12.x' : 'CPU Vector'}</span>
           </div>
 
           <div className="status-divider">|</div>

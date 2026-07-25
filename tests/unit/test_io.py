@@ -59,7 +59,6 @@ def test_sql_roundtrip(sample_table):
         df = sample_table.to_pandas()
         with engine.connect() as conn:
             df.to_sql('users', conn, index=False)
-        engine.dispose()
         scan_plan = read_sql('users', uri)
         assert isinstance(scan_plan, Scan)
         assert scan_plan.format == ScanFormat.SQL
@@ -70,3 +69,6 @@ def test_sql_roundtrip(sample_table):
         table = scheduler.execute(phys_plan, ctx)
         assert table.num_rows == 5
         assert table.column('name').to_pylist() == ['Alice', 'Bob', 'Charlie', 'David', 'Eve']
+        engine.dispose()
+        import gc
+        gc.collect()

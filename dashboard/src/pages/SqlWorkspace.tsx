@@ -299,12 +299,10 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
                 <span className="exec-val text-gold">128 Chunks</span>
               </div>
               <div className="exec-summary-item">
-                <span className="exec-label">Engine Acceleration</span>
-                {telemetry?.config?.gpu_enabled ? (
-                  <span className="exec-val text-emerald">CUDA ACTIVE</span>
-                ) : (
-                  <span className="exec-val text-cyan">CPU VECTOR ENGINE</span>
-                )}
+                <span className="exec-label">Engine Mode</span>
+                <span className={`exec-val ${telemetry?.engine_status?.engine_mode === 'CUDA_GPU' ? 'text-emerald' : 'text-cyan'}`}>
+                  {telemetry?.engine_status?.engine_label || (telemetry?.config?.gpu_enabled ? 'CUDA 12.x Active' : 'CPU Vector Engine (DuckDB + Arrow)')}
+                </span>
               </div>
               <div className="exec-summary-item">
                 <span className="exec-label">Throughput</span>

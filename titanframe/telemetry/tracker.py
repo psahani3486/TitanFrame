@@ -144,6 +144,33 @@ class TelemetryTracker:
         with self.lock:
             return self.query_logs.get(query_id, [])
 
+    def get_engine_status(self) -> dict:
+        import os
+        import titanframe.api.config as cfg
+        from titanframe.gpu.device import DeviceManager
+        cuda_detected = DeviceManager.is_gpu_available()
+        gpu_user_enabled = getattr(cfg.config, 'gpu_enabled', False)
+        
+        if gpu_user_enabled and cuda_detected:
+            engine_mode = "CUDA_GPU"
+            engine_label = "CUDA 12.x Active"
+        else:
+            engine_mode = "CPU_VECTOR"
+            engine_label = "CPU Vector Engine (DuckDB + Arrow)"
+
+        with self.lock:
+            return {
+                "engine_mode": engine_mode,
+                "engine_label": engine_label,
+                "gpu_user_enabled": gpu_user_enabled,
+                "cuda_detected": cuda_detected,
+                "device_count": DeviceManager.get_device_count(),
+                "cpu_memory_limit_bytes": self.ram_budget_bytes or getattr(cfg.config, 'cpu_memory_limit', 0) or 512 * 1024 * 1024,
+                "spill_threshold_pct": round(getattr(cfg.config, 'spill_threshold', 0.85) * 100, 1),
+                "optimizer_enabled": getattr(cfg.config, 'enable_query_optimizer', True),
+                "active_threads": os.cpu_count() or 16,
+            }
+
     def get_snapshot(self) -> Dict[str, Any]:
         import titanframe.api.config as cfg
         import random
@@ -168,5 +195,5 @@ class TelemetryTracker:
             self.ram_timeline.append({'timestamp': time.strftime('%H:%M:%S'), 'ram_mb': ram_mb_val, 'gpu_mb': round(gpu_used_bytes / (1024 * 1024), 1), 'throughput': round(rows_rate_val / 1000000.0, 1)})
             if len(self.ram_timeline) > 30:
                 self.ram_timeline.pop(0)
-            return {'memory': {'ram_allocated_bytes': active_ram_bytes, 'ram_budget_bytes': self.ram_budget_bytes or getattr(cfg.config, 'cpu_memory_limit', 0) or 512 * 1024 * 1024, 'spill_allocated_bytes': self.spill_allocated_bytes or (128 * 1024 * 1024 if self.spill_events_count > 0 else 0), 'spill_budget_bytes': self.spill_budget_bytes or getattr(cfg.config, 'nvme_spill_limit', 0) or 100 * 1024 * 1024 * 1024, 'gpu_allocated_bytes': gpu_used_bytes, 'gpu_budget_bytes': 8 * 1024 * 1024 * 1024, 'spill_events_count': max(1, self.spill_events_count), 'recent_spills': list(self.recent_spills), 'ram_timeline': list(self.ram_timeline)}, 'queries': list(self.active_queries.values()), 'metrics': {'cpu_pct': cpu_val, 'gpu_pct': gpu_val, 'rows_per_sec': rows_rate_val, 'current_stage': stage_text, 'active_pipeline_stage': active_stage}, 'config': {'cpu_memory_limit': getattr(cfg.config, 'cpu_memory_limit', None), 'nvme_spill_limit': getattr(cfg.config, 'nvme_spill_limit', None), 'spill_threshold': getattr(cfg.config, 'spill_threshold', 0.85), 'chunk_size': getattr(cfg.config, 'chunk_size', 65536), 'gpu_enabled': getattr(cfg.config, 'gpu_enabled', False), 'enable_query_optimizer': getattr(cfg.config, 'enable_query_optimizer', True), 'nvme_spill_path': getattr(cfg.config, 'nvme_spill_path', '')}}
+            return {'memory': {'ram_allocated_bytes': active_ram_bytes, 'ram_budget_bytes': self.ram_budget_bytes or getattr(cfg.config, 'cpu_memory_limit', 0) or 512 * 1024 * 1024, 'spill_allocated_bytes': self.spill_allocated_bytes or (128 * 1024 * 1024 if self.spill_events_count > 0 else 0), 'spill_budget_bytes': self.spill_budget_bytes or getattr(cfg.config, 'nvme_spill_limit', 0) or 100 * 1024 * 1024 * 1024, 'gpu_allocated_bytes': gpu_used_bytes, 'gpu_budget_bytes': 8 * 1024 * 1024 * 1024, 'spill_events_count': max(1, self.spill_events_count), 'recent_spills': list(self.recent_spills), 'ram_timeline': list(self.ram_timeline)}, 'queries': list(self.active_queries.values()), 'metrics': {'cpu_pct': cpu_val, 'gpu_pct': gpu_val, 'rows_per_sec': rows_rate_val, 'current_stage': stage_text, 'active_pipeline_stage': active_stage}, 'config': {'cpu_memory_limit': getattr(cfg.config, 'cpu_memory_limit', None), 'nvme_spill_limit': getattr(cfg.config, 'nvme_spill_limit', None), 'spill_threshold': getattr(cfg.config, 'spill_threshold', 0.85), 'chunk_size': getattr(cfg.config, 'chunk_size', 65536), 'gpu_enabled': getattr(cfg.config, 'gpu_enabled', False), 'enable_query_optimizer': getattr(cfg.config, 'enable_query_optimizer', True), 'nvme_spill_path': getattr(cfg.config, 'nvme_spill_path', '')}, 'engine_status': self.get_engine_status()}
 tracker = TelemetryTracker()

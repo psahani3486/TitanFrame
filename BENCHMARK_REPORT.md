@@ -1,4 +1,4 @@
-# TitanFrame Reproducible Performance Benchmark Report
+# TitanFrame Reproducible Multi-Run Performance Benchmark Report
 
 ### Hardware & Environment
 - **OS**: Windows 11
@@ -10,19 +10,22 @@
 - **Target File**: `lineitem.parquet`
 - **File Size**: 63.59 MB
 - **Total Dataset Rows**: 6,000,000 Rows
+- **Benchmark Iterations**: 5 Multi-Run Iterations per Engine
 
-### Comparative Benchmark Results
+### Statistical Benchmark Results (Mean ± Std Dev)
 
-| Processing Engine | Execution Latency | Memory Footprint (Delta) | Throughput Rate | Execution Strategy |
-|-------------------|-------------------|-------------------------|-----------------|--------------------|
-| **Pandas 2.x** | **0.291s** | 253.9 MB | ~20.62M rows/s | Out-of-Core Arrow / In-Memory |
-| **Polars** | N/A (Polars not installed) | N/A | N/A | N/A |
-| **DuckDB (Vector SQL Engine)** | **0.075s** | 6.4 MB | ~80.0M rows/s | Out-of-Core Arrow / In-Memory |
-| **TitanFrame (Arrow Out-of-Core)** | **0.156s** | 108.7 MB | ~38.46M rows/s | Out-of-Core Arrow / In-Memory |
+| Processing Engine | Mean Latency | Standard Deviation (Variance) | Memory Footprint (Delta) | Throughput Rate | Execution Strategy |
+|-------------------|--------------|-------------------------------|-------------------------|-----------------|--------------------|
+| **Pandas 2.x** | **0.207s** | ±0.017s | 179.6 MB | ~28.99M rows/s | Arrow Streaming / Vectorized |
+| **Polars (Lazy Streaming)** | **0.027s** | ±0.002s | 39.3 MB | ~222.22M rows/s | Arrow Streaming / Vectorized |
+| **DuckDB (Vector SQL Engine)** | **0.064s** | ±0.002s | 4.6 MB | ~93.75M rows/s | Arrow Streaming / Vectorized |
+| **TitanFrame (Arrow Out-of-Core)** | **0.103s** | ±0.025s | 38.2 MB | ~58.25M rows/s | Arrow Streaming / Vectorized |
 
 ---
-### Reproducible Methodology
+### Reproducible Methodology & Statistical Confidence
+This benchmark runs each query engine **5 consecutive times** to calculate mean latency and standard deviation, eliminating single-run cache warm-up variance.
+
 To execute this benchmark on custom datasets:
 ```bash
-python benchmarks/run_reproducible_benchmark.py --rows 6000000 --limit 50
+python benchmarks/run_reproducible_benchmark.py --rows 6000000 --limit 50 --runs 5
 ```

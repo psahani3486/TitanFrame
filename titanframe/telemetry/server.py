@@ -224,6 +224,8 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
         if path == '/api/metrics':
             snapshot = tracker.get_snapshot()
             self._respond_json(snapshot)
+        elif path == '/api/engine/status':
+            self._respond_json(tracker.get_engine_status())
         elif path == '/api/datasets':
             datasets = []
             dataset_dir = os.path.join(os.getcwd(), 'dataset')

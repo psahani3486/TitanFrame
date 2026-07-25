@@ -88,22 +88,26 @@ TitanFrame executes queries in streaming chunk batches using Apache Arrow IPC ze
 
 | Query Execution Engine | Processing Strategy | Memory Footprint | Scalability |
 |-----------------------|---------------------|------------------|-------------|
-| **Pandas 2.x** | In-Memory (Eager) | High (Requires Full RAM) | Limited by Available System RAM |
-| **Polars** | In-Memory / Streaming | Medium | Optimized Rust Streaming Engine |
-| **TitanFrame Engine** | **Out-of-Core Streaming** | **Low (Tunable Budget)** | **NVMe Spilling for Large Datasets** |
+| **Pandas 2.x** | In-Memory (Eager) | High (Requires Full RAM) | Limited by System RAM |
+| **Polars** | In-Memory / Streaming | Low to Medium | High-Throughput Rust Engine |
+| **TitanFrame Engine** | **Out-of-Core Arrow Streaming** | **Low (Tunable Budget)** | **NVMe Spilling for Large Datasets** |
+
+> *For detailed memory manager mechanics and optimizer rules, read the [Technical Design Document](docs/architecture/MEMORY_AND_OPTIMIZER_DESIGN.md) and [Reproducible Benchmark Report](BENCHMARK_REPORT.md).*
 
 ---
 
 ##  Installation
 
-### Standard Installation (CPU Vector Backend)
+### Install from Source (Editable Mode)
 ```bash
-pip install titanframe
+git clone https://github.com/psahani3486/TitanFrame.git
+cd TitanFrame
+pip install -e .
 ```
 
 ### With Optional GPU Support (NVIDIA CUDA Environment)
 ```bash
-pip install titanframe[gpu]
+pip install -e .[gpu]
 ```
 
 ---

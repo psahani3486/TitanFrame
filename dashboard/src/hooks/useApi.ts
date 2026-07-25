@@ -53,11 +53,24 @@ export interface ConfigSettings {
   scheduler_policy?: string;
 }
 
+export interface EngineStatus {
+  engine_mode: 'CUDA_GPU' | 'CPU_VECTOR';
+  engine_label: string;
+  gpu_user_enabled: boolean;
+  cuda_detected: boolean;
+  device_count: number;
+  cpu_memory_limit_bytes: number;
+  spill_threshold_pct: number;
+  optimizer_enabled: boolean;
+  active_threads: number;
+}
+
 export interface TelemetryData {
   memory: MemoryStats;
   queries: QueryStat[];
   metrics?: EngineMetrics;
   config?: ConfigSettings;
+  engine_status?: EngineStatus;
 }
 
 export interface DatasetInfo {

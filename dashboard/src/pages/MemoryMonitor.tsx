@@ -87,8 +87,8 @@ export const MemoryMonitor: React.FC<MemoryMonitorProps> = ({ telemetry }) => {
             <div className="gauge-bar-fill gpu" style={{ width: `${config?.gpu_enabled ? 15 : 0}%` }}></div>
           </div>
           <div className="gauge-footer">
-            <span>Mode: {config?.gpu_enabled ? 'CUDA / CuPy Active' : 'CPU Execution'}</span>
-            <span>Device: {config?.gpu_enabled ? 'GPU 0' : 'Host CPU'}</span>
+            <span>Mode: {telemetry?.engine_status?.engine_label || (config?.gpu_enabled ? 'CUDA / CuPy Active' : 'CPU Execution')}</span>
+            <span>Device: {telemetry?.engine_status?.engine_mode === 'CUDA_GPU' ? 'NVIDIA GPU 0' : 'Host CPU Thread Pool'}</span>
           </div>
         </div>
       </div>
