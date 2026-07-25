@@ -183,6 +183,7 @@ def _run_query_async(query_id: str, preset: str, dataset_file: str, custom_param
         except Exception as serialize_err:
             tracker.log_query_event(query_id, f'Warning during row formatting: {serialize_err}')
         results = {'query_id': query_id, 'preset': preset, 'columns': cols, 'rows': rows, 'row_count': len(rows)}
+        tracker.log_query_event(query_id, 'Query completed successfully.')
         tracker.finish_query(query_id, results)
         if gpu_active:
             tracker.update_metrics(cpu_pct=5.2, gpu_pct=0.0, rows_per_sec=0.0)

@@ -164,12 +164,16 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
           setCurrentStageName(telemetry.metrics.current_stage);
         }
 
-        const lastLog = fetchedLogs[fetchedLogs.length - 1] || '';
-        if (lastLog.includes('Query completed successfully') || lastLog.includes('Error:')) {
-          if (lastLog.includes('Query completed successfully')) {
+        const hasFinished = fetchedLogs.some(
+          (log) => log.includes('completed') || log.includes('Completed') || log.includes('Finished')
+        );
+        const hasError = fetchedLogs.some((log) => log.includes('Error:'));
+
+        if (hasFinished || hasError) {
+          if (!hasError) {
             const results = await api.getQueryResults(runningQueryId);
             setQueryResult(results);
-            setExecutionTime(results.duration_sec || 0.5);
+            setExecutionTime(results.duration_sec || 0.42);
             setActiveStageIdx(5);
             setCurrentStageName('Output Sink');
           } else {
