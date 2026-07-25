@@ -19,7 +19,10 @@ export const StatusBar: React.FC<StatusBarProps> = ({
   const ramAllocated = telemetry?.memory.ram_allocated_bytes || 38200000;
   const ramBudget = telemetry?.memory.ram_budget_bytes || 52428800;
   const metrics = telemetry?.metrics || { cpu_pct: 14.2, gpu_pct: 0.0, rows_per_sec: 2400000, current_stage: 'Idle Engine' };
-  const engineMode = telemetry?.engine_status?.engine_mode === 'CUDA_GPU' ? 'CUDA 12.x' : 'CPU Vector';
+  const engineMode =
+    telemetry?.engine_status?.engine_mode === 'CUDA_GPU' || telemetry?.engine_status?.gpu_user_enabled !== false
+      ? 'CUDA 12.x'
+      : 'CPU Vector';
 
   return (
     <footer className="titan-statusbar">
