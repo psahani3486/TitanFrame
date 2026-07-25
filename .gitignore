@@ -47,6 +47,7 @@ dashboard/dist/
 dataset/*.csv
 dataset/2019-Oct.csv
 dataset/2019-Nov.csv
+dataset/2019-Dec-20GB.csv
 .titanframe/
 *.log
 

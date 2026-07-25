@@ -151,9 +151,10 @@ class TelemetryTracker:
         cuda_detected = DeviceManager.is_gpu_available()
         gpu_user_enabled = getattr(cfg.config, 'gpu_enabled', False)
         
+        device_name = DeviceManager.get_device_name()
         if gpu_user_enabled:
             engine_mode = "CUDA_GPU"
-            engine_label = "CUDA 12.x Accelerated (CuPy GPU Vector Engine)"
+            engine_label = f"CUDA 12.x ({device_name})"
         else:
             engine_mode = "CPU_VECTOR"
             engine_label = "CPU Vector Engine (DuckDB + Arrow)"
