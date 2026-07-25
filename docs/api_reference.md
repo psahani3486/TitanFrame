@@ -1,6 +1,6 @@
 # TitanFrame API Reference
 
-Welcome to the **TitanFrame API Reference**. TitanFrame provides both Eager (`DataFrame`) and Lazy (`LazyFrame`) computation models for high-throughput, GPU-accelerated, out-of-core data analytics.
+Welcome to the **TitanFrame API Reference**. TitanFrame provides both Eager (`DataFrame`) and Lazy (`LazyFrame`) computation models for high-throughput, out-of-core vector data analytics.
 
 ---
 

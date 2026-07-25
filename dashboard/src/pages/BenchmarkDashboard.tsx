@@ -71,9 +71,9 @@ export const BenchmarkDashboard: React.FC<BenchmarkDashboardProps> = ({ datasets
     <div className="page-container benchmark-page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Vector Engine Benchmark Suite</h1>
+          <h1 className="page-title">Vector Engine & Out-of-Core Benchmark Suite</h1>
           <p className="page-subtitle">
-            Comparative performance benchmark between TitanFrame out-of-core streaming, Pandas, and Polars.
+            Evaluates streaming query latency and out-of-core memory efficiency across dataset scales against Pandas and Polars.
           </p>
         </div>
         <div className="header-actions">
@@ -96,6 +96,10 @@ export const BenchmarkDashboard: React.FC<BenchmarkDashboardProps> = ({ datasets
             {running ? 'Running Benchmark...' : 'Trigger Benchmark Run'}
           </button>
         </div>
+      </div>
+
+      <div className="status-banner" style={{ background: 'rgba(56,189,248,0.1)', borderColor: 'rgba(56,189,248,0.3)', color: '#38bdf8' }}>
+        <strong>Methodology Note:</strong> Benchmarks measure query execution latency using streaming Arrow IPC chunks. Out-of-core spilling enables processing datasets exceeding host RAM. Results vary based on dataset size, thread pool configuration, and NVMe disk throughput.
       </div>
 
       {statusMsg && <div className="status-banner">Notice: {statusMsg}</div>}

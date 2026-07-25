@@ -141,8 +141,11 @@ export const Settings: React.FC<SettingsProps> = ({ telemetry }) => {
                   checked={gpuToggle}
                   onChange={(e) => setGpuToggle(e.target.checked)}
                 />
-                <label htmlFor="gpuCheck">Enable GPU Acceleration (CuPy / Triton Kernels)</label>
+                <label htmlFor="gpuCheck">Enable Optional GPU Module (CuPy / Triton CUDA Kernels)</label>
               </div>
+              <span className="hint" style={{ marginTop: '-0.5rem', marginBottom: '1rem', display: 'block' }}>
+                Note: When running on standard CPU hosts (e.g. Render / Railway cloud deployments), TitanFrame automatically executes via high-performance vector CPU / DuckDB backend.
+              </span>
 
               <div className="form-group checkbox-row">
                 <input

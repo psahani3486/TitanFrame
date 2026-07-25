@@ -1,19 +1,19 @@
-#  TitanFrame
+# TitanFrame
 
 <p align="center">
   <img src="Screenshots/dashboard.png" alt="TitanFrame Executive Dashboard" width="100%" />
 </p>
 
 <p align="center">
-  <strong>A Pandas-like DataFrame Library & Real-Time Telemetry Studio for Out-of-Core, GPU-Accelerated Computing</strong>
+  <strong>An Interactive Vector Analytics Platform & Out-of-Core Data Engine</strong>
 </p>
 
 <p align="center">
   <a href="https://titan-frame.vercel.app/"><img src="https://img.shields.io/badge/Vercel-Live%20Studio-brightgreen?logo=vercel&style=for-the-badge" alt="Vercel Live Studio"></a>
   <a href="https://titanframe-backend.onrender.com"><img src="https://img.shields.io/badge/Render-Backend%20API-blue?logo=render&style=for-the-badge" alt="Render Backend API"></a>
   <img src="https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-blue?logo=python&style=for-the-badge" alt="Python Versions">
-  <img src="https://img.shields.io/badge/GPU-CUDA%2012.x-76B900?logo=nvidia&style=for-the-badge" alt="CUDA 12.x">
-  <img src="https://img.shields.io/badge/Apache%20Arrow-Native-E44D26?logo=apache&style=for-the-badge" alt="Apache Arrow">
+  <img src="https://img.shields.io/badge/Engine-DuckDB%20%2B%20Arrow%20IPC-blue?style=for-the-badge" alt="Engine">
+  <img src="https://img.shields.io/badge/Memory-Out--of--Core%20Spill-amber?style=for-the-badge" alt="Out of Core">
   <img src="https://img.shields.io/badge/License-Apache%202.0-green.svg?style=for-the-badge" alt="License">
 </p>
 
@@ -21,9 +21,9 @@
 
 ##  Overview
 
-**TitanFrame** is an out-of-core, GPU-accelerated DataFrame library designed to process datasets **100x larger than system RAM** with zero code rewrites. Powered by Apache Arrow IPC streaming, CuPy/Triton CUDA kernels, and a lazy DAG query optimizer, TitanFrame seamlessly scales from local developer laptops to cloud cluster deployments.
+**TitanFrame** is an interactive analytics platform designed for high-performance dataset exploration, SQL querying, execution monitoring, out-of-core memory spilling, and telemetry visualization. Powered by DuckDB vector query execution, Apache Arrow zero-copy IPC streaming, FastAPI, and React, TitanFrame processes datasets efficiently even in memory-constrained environments.
 
-TitanFrame includes **TitanFrame Studio**, a modern React-based web dashboard offering real-time engine telemetry, interactive query DAG visualizers, a SQL analytics workspace, dataset profilers, and live benchmark suites.
+TitanFrame includes **TitanFrame Studio**, a modern React web dashboard offering real-time engine telemetry, interactive query DAG visualizers, a SQL analytics workspace, dataset profilers, and performance benchmark dashboards.
 
 ---
 
@@ -36,13 +36,13 @@ Real-time engine telemetry, host RAM allocation timelines, NVMe spill triggers, 
 ---
 
 ### 2.  SQL Analytics Workspace
-Write, execute, and analyze vector queries against 100M+ row datasets with out-of-core chunk streaming.
+Write, execute, and analyze vector queries with out-of-core chunk streaming.
 ![SQL Analytics Workspace](Screenshots/sql%20analytics.png)
 
 ---
 
 ### 3.  Dataset Explorer & Statistical Profiler
-Inspect schema metadata, column data types, distinct value distributions, and preview raw contents of 10GB+ CSV/Parquet files.
+Inspect schema metadata, column data types, distinct value distributions, and preview raw CSV/Parquet contents.
 ![Dataset Explorer](Screenshots/datasets.png)
 
 ---
@@ -54,54 +54,54 @@ Visualize directed acyclic graphs (DAG) representing TitanFrame logical and phys
 ---
 
 ### 5.  Vector Engine Benchmark Suite
-Comparative performance benchmark testing TitanFrame out-of-core vector engine against Pandas and Polars.
+Comparative performance benchmark suite tracking execution times and streaming throughput across query workloads.
 ![Benchmark Dashboard](Screenshots/Benchmarks.png)
 
 ---
 
 ### 6.  Memory & GPU Out-of-Core Monitor
-Monitor hierarchical memory spilling (GPU VRAM ➔ System RAM ➔ NVMe Arrow IPC storage) and active CUDA allocations.
+Monitor memory spilling (Host RAM ➔ NVMe Arrow IPC storage) and track device state.
 ![Memory & GPU Monitor](Screenshots/gpu%20monitor.png)
 
 ---
 
-### 7.  Settings & Cluster Configuration
-Configure host RAM limits, NVMe spill thresholds, SIMD vectorization, and production backend API connection URLs.
+### 7.  Settings & Engine Configuration
+Configure host RAM limits, NVMe spill thresholds, SIMD vectorization, and production backend API endpoints.
 ![Settings & Config](Screenshots/settings.png)
 
 ---
 
 ##  Key Features
 
-- **Pandas & Polars Compatible API**: Drop-in replacement for standard DataFrame filters, group-by aggregations, joins, and projections.
-- **Lazy DAG Execution**: Builds an optimized logical query plan before execution, fusing operations and eliminating redundant computations.
-- **Hierarchical Out-of-Core Memory Manager**: Automatically spills data chunks from GPU VRAM to Host RAM to NVMe disk using Apache Arrow zero-copy IPC streaming.
-- **GPU Acceleration (CUDA 12.x)**: Triton and CuPy kernels for 10x–100x speedups with automatic CPU fallback when GPU memory is saturated.
-- **Query Optimizer**: Automatic predicate pushdown, projection pruning, and join reordering.
-- **TitanFrame Studio Web Dashboard**: Built-in REST API & React frontend with interactive DAG trees, SQL editor, and performance profiler.
+- **SQL Analytics & DuckDB Vector Engine**: Fast SQL query execution powered by DuckDB and Apache Arrow format.
+- **Out-of-Core Spill Engine**: Demonstrates out-of-core execution by spilling Arrow data chunks to NVMe disk when RAM limits are reached.
+- **Lazy DAG Query Optimizer**: Builds optimized query execution trees with predicate pushdown, projection pruning, and expression fusion.
+- **TitanFrame Studio Web Dashboard**: Built-in REST API & React dashboard with interactive query DAG trees, SQL editor, and telemetry metrics.
+- **Pandas & Polars Interoperability**: Compatible Python DataFrame API for drop-in filters, group-by aggregations, joins, and projections.
+- **Optional GPU Module Support**: Optional CUDA kernel acceleration module (via CuPy/Triton) for CUDA-enabled hardware with automatic CPU fallback.
 
 ---
 
-##  Performance Benchmark
+##  Performance & Out-of-Core Streaming
 
-*Benchmarked on 6.0M row TPC-H `lineitem` and 109M row eCommerce datasets:*
+TitanFrame executes queries in streaming chunk batches using Apache Arrow IPC zero-copy buffers. When memory budget limits are hit (e.g. 50 MB RAM cap), the engine automatically spills intermediate chunk buffers to disk, preventing Out-Of-Memory (OOM) failures:
 
-| Engine | Execution Time | Memory Usage | Throughput | Speedup |
-|--------|---------------|--------------|------------|---------|
-| **Pandas 2.x** | 0.51s | High (In-Memory) | ~11.7M rows/s | 1.0x |
-| **Polars** | 0.22s | Medium | ~27.2M rows/s | 2.3x |
-| **TitanFrame 1.0** | **0.12s** | **Low (Out-of-Core)** | **~50.0M rows/s** | **4.25x** |
+| Query Execution Engine | Processing Strategy | Memory Footprint | Scalability |
+|-----------------------|---------------------|------------------|-------------|
+| **Pandas 2.x** | In-Memory (Eager) | High (Requires Full RAM) | Limited by Available System RAM |
+| **Polars** | In-Memory / Streaming | Medium | Optimized Rust Streaming Engine |
+| **TitanFrame Engine** | **Out-of-Core Streaming** | **Low (Tunable Budget)** | **NVMe Spilling for Large Datasets** |
 
 ---
 
 ##  Installation
 
-### CPU Installation
+### Standard Installation (CPU Vector Backend)
 ```bash
 pip install titanframe
 ```
 
-### With GPU Acceleration (NVIDIA CUDA 12.x)
+### With Optional GPU Support (NVIDIA CUDA Environment)
 ```bash
 pip install titanframe[gpu]
 ```
@@ -110,7 +110,7 @@ pip install titanframe[gpu]
 
 ##  Quickstart Code
 
-### Eager Mode (Pandas Style)
+### Eager Mode
 ```python
 import titanframe as tf
 
@@ -131,24 +131,22 @@ result = (
 print(result)
 ```
 
-### Lazy Mode (Optimized Execution Engine)
+### Lazy Mode (Optimized Query DAG)
 ```python
 import titanframe as tf
 
-# Build lazy logical plan
-lf = tf.scan_csv("dataset/2019-Oct.csv")
+# Build lazy query plan
+lf = tf.scan_parquet("lineitem.parquet")
 
 query = (
-    lf.filter(tf.col("event_type") == "purchase")
-      .filter(tf.col("brand").is_not_null())
-      .select("brand", "price")
-      .group_by("brand")
-      .agg(tf.col("price").sum().alias("total_revenue"))
-      .sort("total_revenue", descending=True)
-      .head(20)
+    lf.filter(tf.col("l_discount") > 0.05)
+      .select("l_returnflag", "l_quantity", "l_extendedprice")
+      .group_by("l_returnflag")
+      .agg(tf.col("l_quantity").sum().alias("sum_qty"))
+      .sort("sum_qty", descending=True)
 )
 
-# Collect triggers predicate pushdown, projection pruning & chunk execution
+# Collect triggers predicate pushdown & streaming chunk execution
 res = query.collect()
 print(res)
 ```
@@ -171,24 +169,24 @@ pip install -e .
 python run_ecom_dashboard.py
 ```
 
-Then visit **`http://localhost:8080`** or open the React frontend at **`http://localhost:5173`**.
+Visit **`http://localhost:8080`** or open the React frontend at **`http://localhost:5173`**.
 
 ---
 
 ##  Production Deployment Guide
 
 ### Deploy Backend on Render (Python Web Service)
-1. Create a new Web Service on [Render.com](https://dashboard.render.com/) pointing to your GitHub repository.
+1. Create a new Web Service on [Render.com](https://dashboard.render.com/) pointing to your repository.
 2. Set **Build Command**: `pip install -r requirements.txt && pip install -e .`
 3. Set **Start Command**: `python run_ecom_dashboard.py`
-4. Deploy! Your backend API will be live at `https://your-backend.onrender.com`.
+4. Standard Render CPU instances run on TitanFrame's high-performance CPU vector engine with out-of-core spilling.
 
 ### Deploy Frontend on Vercel (React Dashboard)
 1. Import repository on [Vercel.com](https://vercel.com).
 2. Set **Root Directory**: `dashboard`
 3. Set **Build Command**: `npm run build`
 4. Set Environment Variable: `VITE_API_URL` = `https://your-backend.onrender.com`
-5. Click **Deploy**! Live at `https://titan-frame.vercel.app/`.
+5. Live at `https://titan-frame.vercel.app/`.
 
 ---
 

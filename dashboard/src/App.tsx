@@ -73,6 +73,7 @@ export default function App() {
               datasets={datasets}
               selectedDatasetPath={selectedDatasetForQuery}
               onNavigateToDag={() => setActivePage('visualizer')}
+              telemetry={telemetry}
             />
           )}
 

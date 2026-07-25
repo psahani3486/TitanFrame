@@ -3,13 +3,14 @@ import CodeMirror from '@uiw/react-codemirror';
 import { sql } from '@codemirror/lang-sql';
 import './SqlWorkspace.css';
 import { api } from '../hooks/useApi';
-import type { DatasetInfo, QueryResult } from '../hooks/useApi';
+import type { DatasetInfo, QueryResult, TelemetryData } from '../hooks/useApi';
 import { LivePipelineAnimation } from '../components/LivePipelineAnimation';
 
 interface SqlWorkspaceProps {
   datasets: DatasetInfo[];
   selectedDatasetPath?: string;
   onNavigateToDag?: () => void;
+  telemetry?: TelemetryData | null;
 }
 
 const PRESET_QUERIES = [
@@ -69,6 +70,7 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
   datasets,
   selectedDatasetPath,
   onNavigateToDag,
+  telemetry,
 }) => {
   const getDefaultDataset = () => {
     if (selectedDatasetPath) return selectedDatasetPath;
@@ -277,8 +279,12 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
                 <span className="exec-val text-gold">128 Chunks</span>
               </div>
               <div className="exec-summary-item">
-                <span className="exec-label">GPU Acceleration</span>
-                <span className="exec-val text-emerald">ACTIVE</span>
+                <span className="exec-label">Engine Acceleration</span>
+                {telemetry?.config?.gpu_enabled ? (
+                  <span className="exec-val text-emerald">CUDA ACTIVE</span>
+                ) : (
+                  <span className="exec-val text-cyan">CPU VECTOR ENGINE</span>
+                )}
               </div>
               <div className="exec-summary-item">
                 <span className="exec-label">Throughput</span>
