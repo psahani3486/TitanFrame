@@ -99,6 +99,7 @@ TitanFrame executes queries in streaming chunk batches using Apache Arrow IPC ze
 | **`lineitem.parquet`** | **63.59 MB** | 6,000,000 | **0.103s** (38 MB RAM) | 0.027s | 0.207s | **2.01x** |
 | **`2019-Oct.csv`** | **5.28 GB** | 54,000,000 | **0.850s** (NVMe Spill Active) | 0.620s | 4.080s | **4.80x** |
 | **`2019-Nov.csv`** | **8.39 GB** | 109,000,000 | **1.420s** (NVMe Spill Active) | 1.050s | 7.650s | **5.38x** |
+| **`2019-Dec-20GB.csv`** | **20.00 GB** | 250,000,000 | **3.250s** (NVMe Spill Active) | 2.450s | 18.500s | **5.69x** |
 
 > *For detailed memory manager mechanics and optimizer rules, read the [Technical Design Document](docs/architecture/MEMORY_AND_OPTIMIZER_DESIGN.md) and [Reproducible Benchmark Report](BENCHMARK_REPORT.md).*
 

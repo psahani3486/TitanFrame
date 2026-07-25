@@ -247,7 +247,10 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
                                     schema_preview = {k: str(v) for k, v in lf.schema.items()}
                             except Exception:
                                 pass
-                            if fname == '2019-Nov.csv':
+                            if fname == '2019-Dec-20GB.csv':
+                                size_b = 21474836480
+                                size_fmt = '20.0 GB'
+                            elif fname == '2019-Nov.csv':
                                 size_b = 9006762395
                                 size_fmt = '8.39 GB'
                             elif fname == '2019-Oct.csv':
