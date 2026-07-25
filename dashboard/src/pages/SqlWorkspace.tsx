@@ -183,6 +183,26 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
   const totalPages = Math.ceil(filteredRows.length / pageSize) || 1;
   const paginatedRows = filteredRows.slice((page - 1) * pageSize, page * pageSize);
 
+  const handleExportCSV = () => {
+    if (!queryResult || !queryResult.rows || queryResult.rows.length === 0) return;
+    const cols = queryResult.columns;
+    const csvRows = [cols.join(',')];
+    queryResult.rows.forEach((r) => {
+      const vals = cols.map((c) => {
+        const v = String(r[c] ?? '');
+        return v.includes(',') ? `"${v}"` : v;
+      });
+      csvRows.push(vals.join(','));
+    });
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `titanframe_query_export_${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="page-container sql-workspace-page">
       <div className="page-header">
@@ -334,6 +354,9 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
                       setPage(1);
                     }}
                   />
+                  <button className="btn btn-secondary" onClick={handleExportCSV}>
+                    Export CSV
+                  </button>
                   {onNavigateToDag && (
                     <button className="btn btn-primary" onClick={onNavigateToDag}>
                       Inspect Query DAG
