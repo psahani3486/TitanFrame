@@ -88,9 +88,9 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
 }) => {
   const getDefaultDataset = () => {
     if (selectedDatasetPath) return selectedDatasetPath;
-    const octDs = datasets.find((d) => d.path.includes('2019-Oct'));
-    if (octDs) return octDs.path;
-    return datasets[0]?.path || 'dataset/2019-Oct.csv';
+    const gb20Ds = datasets.find((d) => d.path.includes('20GB'));
+    if (gb20Ds) return gb20Ds.path;
+    return datasets[0]?.path || 'dataset/2019-Dec-20GB.csv';
   };
 
   const [targetDataset, setTargetDataset] = useState<string>(getDefaultDataset);
@@ -131,7 +131,14 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
   const handleSelectPreset = (pId: string) => {
     setSelectedPresetId(pId);
     const presetObj = PRESET_QUERIES.find((p) => p.id === pId);
-    if (presetObj) setSqlCode(presetObj.sql);
+    if (presetObj) {
+      setSqlCode(presetObj.sql);
+      if (pId === 'top_brands_20gb') {
+        const ds20 = datasets.find((d) => d.path.includes('20GB'));
+        if (ds20) setTargetDataset(ds20.path);
+        else setTargetDataset('dataset/2019-Dec-20GB.csv');
+      }
+    }
   };
 
   const handleExecuteQuery = async () => {

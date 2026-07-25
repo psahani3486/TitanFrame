@@ -265,10 +265,18 @@ export const api = {
 
   async getDatasetPreview(path: string, limit = 50): Promise<{ columns: string[]; rows: any[]; row_count: number }> {
     try {
-      const res = await fetch(`${getBaseUrl()}/api/datasets/preview?path=${encodeURIComponent(path)}&limit=${limit}`);
-      if (res.ok) return await res.json();
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
+      const res = await fetch(`${getBaseUrl()}/api/datasets/preview?path=${encodeURIComponent(path)}&limit=${limit}`, {
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (res.ok) {
+        const json = await res.json();
+        if (json.columns && json.columns.length > 0) return json;
+      }
     } catch (e) {
-      console.warn('Preview offline');
+      console.warn('Preview offline or timed out, using fallback');
     }
     const columns = path.includes('lineitem')
       ? ['l_orderkey', 'l_quantity', 'l_extendedprice', 'l_discount', 'l_returnflag']
