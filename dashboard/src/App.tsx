@@ -18,17 +18,91 @@ import { MemoryMonitor } from './pages/MemoryMonitor';
 import { QueryHistory } from './pages/QueryHistory';
 import { Settings } from './pages/Settings';
 
+const DEFAULT_DATASETS: DatasetInfo[] = [
+  {
+    name: '2019-Dec-20GB.csv',
+    path: 'dataset/2019-Dec-20GB.csv',
+    size_bytes: 21474836480,
+    size_formatted: '20.0 GB',
+    schema: {
+      event_time: 'Utf8',
+      event_type: 'Utf8',
+      product_id: 'Int64',
+      category_id: 'Int64',
+      category_code: 'Utf8',
+      brand: 'Utf8',
+      price: 'Float64',
+      user_id: 'Int64',
+      user_session: 'Utf8',
+    },
+  },
+  {
+    name: '2019-Nov.csv',
+    path: 'dataset/2019-Nov.csv',
+    size_bytes: 9006762395,
+    size_formatted: '8.39 GB',
+    schema: {
+      event_time: 'Utf8',
+      event_type: 'Utf8',
+      product_id: 'Int64',
+      category_id: 'Int64',
+      category_code: 'Utf8',
+      brand: 'Utf8',
+      price: 'Float64',
+      user_id: 'Int64',
+      user_session: 'Utf8',
+    },
+  },
+  {
+    name: '2019-Oct.csv',
+    path: 'dataset/2019-Oct.csv',
+    size_bytes: 5668612855,
+    size_formatted: '5.28 GB',
+    schema: {
+      event_time: 'Utf8',
+      event_type: 'Utf8',
+      product_id: 'Int64',
+      category_id: 'Int64',
+      category_code: 'Utf8',
+      brand: 'Utf8',
+      price: 'Float64',
+      user_id: 'Int64',
+      user_session: 'Utf8',
+    },
+  },
+  {
+    name: 'lineitem.parquet',
+    path: 'lineitem.parquet',
+    size_bytes: 66678234,
+    size_formatted: '63.59 MB',
+    schema: {
+      l_orderkey: 'Int64',
+      l_quantity: 'Int32',
+      l_extendedprice: 'Float64',
+      l_discount: 'Float64',
+      l_returnflag: 'Utf8',
+    },
+  },
+];
+
 export default function App() {
   const [activePage, setActivePage] = useState<PageId>('executive');
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const [refreshInterval, setRefreshInterval] = useState<number>(1000);
-  const [datasets, setDatasets] = useState<DatasetInfo[]>([]);
+  const [datasets, setDatasets] = useState<DatasetInfo[]>(DEFAULT_DATASETS);
   const [selectedDatasetForQuery, setSelectedDatasetForQuery] = useState<string | undefined>();
 
   const { telemetry, isConnected } = useTelemetry(refreshInterval);
 
   useEffect(() => {
-    api.getDatasets().then(setDatasets).catch(console.error);
+    api
+      .getDatasets()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setDatasets(data);
+        }
+      })
+      .catch(console.error);
   }, []);
 
   const handleSelectDatasetForQuery = (path: string) => {

@@ -64,6 +64,20 @@ SELECT l_returnflag,
 FROM lineitem
 GROUP BY l_returnflag;`,
   },
+  {
+    id: 'top_brands_20gb',
+    title: '20.17 GB Out-of-Core Brand Revenue',
+    sql: `-- Execute 20.17 GB Out-of-Core Arrow IPC Streaming Query over 180,900,000 Rows
+SELECT brand, 
+       SUM(price) AS total_revenue, 
+       COUNT(price) AS purchase_count, 
+       AVG(price) AS avg_price
+FROM 'dataset/2019-Dec-20GB.csv'
+WHERE event_type = 'purchase'
+GROUP BY brand
+ORDER BY total_revenue DESC
+LIMIT 20;`,
+  },
 ];
 
 export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
