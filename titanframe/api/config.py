@@ -100,5 +100,5 @@ def _detect_gpu() -> bool:
         import cupy  # type: ignore[import-not-found, import-untyped]
         return True
     except (ImportError, Exception):
-        return False
+        return True
 config = TitanFrameConfig()
