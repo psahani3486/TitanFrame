@@ -97,6 +97,27 @@ export const BenchmarkDashboard: React.FC<BenchmarkDashboardProps> = ({ datasets
 
   const latestRun = activeHistory.length > 0 ? activeHistory[activeHistory.length - 1] : getDatasetScaleFallback(targetDataset)[1];
 
+  const availableDatasets = [...datasets];
+  if (!availableDatasets.some((d) => d.name.includes('20GB') || d.name.includes('2019-Dec'))) {
+    availableDatasets.unshift({
+      name: '2019-Dec-20GB.csv',
+      path: 'dataset/2019-Dec-20GB.csv',
+      size_bytes: 21657219103,
+      size_formatted: '20.17 GB',
+      schema: {
+        event_time: 'Utf8',
+        event_type: 'Utf8',
+        product_id: 'Int64',
+        category_id: 'Int64',
+        category_code: 'Utf8',
+        brand: 'Utf8',
+        price: 'Float64',
+        user_id: 'Int64',
+        user_session: 'Utf8',
+      },
+    });
+  }
+
   return (
     <div className="page-container benchmark-page">
       <div className="page-header">
@@ -112,15 +133,11 @@ export const BenchmarkDashboard: React.FC<BenchmarkDashboardProps> = ({ datasets
             onChange={(e) => setTargetDataset(e.target.value)}
             className="bench-select"
           >
-            {datasets.length === 0 ? (
-              <option value="lineitem.parquet">lineitem.parquet (66.7 MB)</option>
-            ) : (
-              datasets.map((d) => (
-                <option key={d.path} value={d.path}>
-                  {d.name} ({d.size_formatted})
-                </option>
-              ))
-            )}
+            {availableDatasets.map((d) => (
+              <option key={d.path} value={d.path}>
+                {d.name} ({d.size_formatted})
+              </option>
+            ))}
           </select>
           <button className="btn btn-accent" onClick={handleRunBenchmark} disabled={running}>
             {running ? 'Running Benchmark...' : 'Trigger Benchmark Run'}
