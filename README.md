@@ -27,46 +27,46 @@ TitanFrame includes **TitanFrame Studio**, a modern React web dashboard offering
 
 ---
 
-##  Web Studio Showcase & Screenshots
+## 🖼️ Web Studio Showcase & Visual Demo
 
-### 1.  Executive Telemetry Dashboard
+### 1. 📝 SQL Analytics Workspace Panel
+Write, execute, and profile vector queries with out-of-core chunk streaming. Features Monaco-style SQL syntax highlighting, live execution status tags, and instant **Export CSV** and **Export JSON** tools.
+![SQL Analytics Workspace](Screenshots/sql%20analytics.png)
+
+---
+
+### 2. 🌲 Interactive Query DAG Visualizer (Unoptimized vs Optimized Diff)
+Visualize directed acyclic graphs (DAG) representing TitanFrame execution plan trees. Toggle between **Unoptimized Logical DAG** and **Optimized Physical DAG** to verify rule-based optimizations like **Predicate Pushdown** and **Projection Pruning**.
+![Query Plan Visualizer](Screenshots/Query%20plan%20and%20DAG.png)
+
+---
+
+### 3. 💾 Memory & Spill Timeline (NVMe Out-of-Core Monitor)
+Monitor real-time host RAM allocation against configured ceilings (e.g. 50 MB RAM Cap). Tracks automatic **LZ4 Arrow IPC spilling to NVMe disk** (`~/.titanframe/spill`) when memory usage crosses threshold limits.
+![Memory & GPU Monitor](Screenshots/gpu%20monitor.png)
+
+---
+
+### 4. 📊 Executive Telemetry Dashboard
 Real-time engine telemetry, host RAM allocation timelines, NVMe spill triggers, and active dataset overviews.
 ![Executive Dashboard](Screenshots/dashboard.png)
 
 ---
 
-### 2.  SQL Analytics Workspace
-Write, execute, and analyze vector queries with out-of-core chunk streaming.
-![SQL Analytics Workspace](Screenshots/sql%20analytics.png)
+### 5. ⚡ Vector Engine Benchmark Suite
+Statistical multi-run performance benchmark suite tracking latency and throughput across datasets against Pandas 2.x and Polars.
+![Benchmark Dashboard](Screenshots/Benchmarks.png)
 
 ---
 
-### 3.  Dataset Explorer & Statistical Profiler
+### 6. 📂 Dataset Explorer & Statistical Profiler
 Inspect schema metadata, column data types, distinct value distributions, and preview raw CSV/Parquet contents.
 ![Dataset Explorer](Screenshots/datasets.png)
 
 ---
 
-### 4.  Interactive Query DAG Visualizer
-Visualize directed acyclic graphs (DAG) representing TitanFrame logical and physical execution plan trees.
-![Query Plan Visualizer](Screenshots/Query%20plan%20and%20DAG.png)
-
----
-
-### 5.  Vector Engine Benchmark Suite
-Comparative performance benchmark suite tracking execution times and streaming throughput across query workloads.
-![Benchmark Dashboard](Screenshots/Benchmarks.png)
-
----
-
-### 6.  Memory & GPU Out-of-Core Monitor
-Monitor memory spilling (Host RAM ➔ NVMe Arrow IPC storage) and track device state.
-![Memory & GPU Monitor](Screenshots/gpu%20monitor.png)
-
----
-
-### 7.  Settings & Engine Configuration
-Configure host RAM limits, NVMe spill thresholds, SIMD vectorization, and production backend API endpoints.
+### 7. ⚙️ Settings & Unified Engine Status
+Configure host RAM limits, NVMe spill thresholds, SIMD vectorization, and inspect the single `EngineState` source of truth.
 ![Settings & Config](Screenshots/settings.png)
 
 ---

@@ -324,7 +324,32 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
             info = {'os': platform.system(), 'os_release': platform.release(), 'python_version': sys.version.split()[0], 'cpu_count': os.cpu_count() or 4, 'gpu_available': getattr(tf.config, 'gpu_enabled', False), 'titanframe_version': getattr(tf, '__version__', '1.0.0')}
             self._respond_json(info)
         else:
-            super().do_GET()
+            dist_dir = os.path.join(os.getcwd(), 'dashboard', 'dist')
+            if os.path.exists(dist_dir):
+                target_file = path.lstrip('/')
+                file_path = os.path.join(dist_dir, target_file)
+                if not os.path.exists(file_path) or os.path.isdir(file_path):
+                    file_path = os.path.join(dist_dir, 'index.html')
+                
+                content_type = 'text/html'
+                if file_path.endswith('.css'): content_type = 'text/css'
+                elif file_path.endswith('.js'): content_type = 'application/javascript'
+                elif file_path.endswith('.png'): content_type = 'image/png'
+                elif file_path.endswith('.svg'): content_type = 'image/svg+xml'
+                
+                try:
+                    with open(file_path, 'rb') as f:
+                        content = f.read()
+                    self.send_response(200)
+                    self.send_header('Content-Type', content_type)
+                    self.send_header('Content-Length', str(len(content)))
+                    self.end_headers()
+                    self.wfile.write(content)
+                    return
+                except Exception:
+                    super().do_GET()
+            else:
+                super().do_GET()
 
     def do_POST(self):
         parsed = urlparse(self.path)
