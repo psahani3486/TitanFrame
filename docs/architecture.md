@@ -1,24 +1,55 @@
-# TitanFrame Architecture
+# TitanFrame Technical Architecture & System Design
 
-TitanFrame processes data using a 5-phase execution model, inspired by modern query engines like Apache Spark and Polars.
+**TitanFrame** is an out-of-core, vector data analytics engine designed to process multi-gigabyte datasets with minimal memory overhead using Apache Arrow IPC streaming and DuckDB execution kernels.
 
-## 1. Lazy Frontend (API Layer)
-When users call operations like `lf.filter()`, `lf.select()`, or `lf.group_by()` on a `LazyFrame`, no data is actually processed. Instead, the API builds a **Logical Plan**—a tree of operations describing *what* should be done (e.g. `Projection`, `Filter`, `Aggregation`).
+---
 
-## 2. Query Optimizer
-Before execution, the `QueryOptimizer` traverses the Logical Plan and applies a series of heuristic rules:
-- **Predicate Pushdown**: Moves `Filter` operations down the tree as close to the data source (`Scan`) as possible, minimizing the amount of data read.
-- **Projection Pushdown**: Drops unused columns early in the pipeline.
-- **Constant Folding**: Evaluates constant expressions (e.g. `1 + 2`) at compile-time instead of row-by-row during execution.
+## High-Level System Architecture
 
-## 3. Physical Planner
-The `PhysicalPlanner` translates the optimized Logical Plan into a **Physical Plan**. 
-While Logical Nodes describe *what* to do, Physical Nodes describe *how* to do it. For example, a logical `Join` node might be translated into a `HashJoinExec` or `SortMergeExec` physical node depending on the data. 
+```
+                                  +---------------------------------------+
+                                  |     User-Facing API & SQL Studio      |
+                                  |   (tf.DataFrame / SQL Monaco Editor)  |
+                                  +---------------------------------------+
+                                                      |
+                                                      v
+                                  +---------------------------------------+
+                                  |     Logical Plan Builder (DAG)        |
+                                  +---------------------------------------+
+                                                      |
+                                                      v
+                                  +---------------------------------------+
+                                  |  Rule-Based Query Optimizer           |
+                                  |  - Predicate Pushdown                 |
+                                  |  - Projection Pruning                 |
+                                  +---------------------------------------+
+                                                      |
+                                                      v
+                                  +---------------------------------------+
+                                  | Physical Operator Execution Tree      |
+                                  | (ScanExec -> FilterExec -> HashAgg)   |
+                                  +---------------------------------------+
+                                                      |
+                                                      v
+                                  +---------------------------------------+
+                                  |  Hierarchical Out-of-Core Spill Pool  |
+                                  |  (Host RAM 65.5K Chunks -> NVMe Spill)|
+                                  +---------------------------------------+
+```
 
-All Physical Nodes implement a streaming `execute()` method that yields `Chunk`s of Arrow data.
+---
 
-## 4. Execution Engine (DAG Scheduler)
-The `DAGScheduler` coordinates the execution of the Physical Plan. It manages the flow of `Chunk`s through the pipeline, tracks progress via `tqdm`, and handles thread-pool allocation (when multi-threading is enabled). Data is processed in small batches (e.g. 64K rows) to keep memory usage low.
+## Core Components
 
-## 5. Memory Manager
-TitanFrame is designed for out-of-core execution. The `MemoryManager` monitors RAM usage during execution. If memory pressure becomes too high (e.g., during a massive `HashJoin`), it will transparently spill data to NVMe storage and stream it back when needed, preventing Out-Of-Memory (OOM) crashes.
+1. **Logical Plan DAG**:
+   - Represents the high-level data transformation pipeline (`Scan`, `Filter`, `Select`, `Aggregate`, `Sort`).
+2. **Rule-Based Optimizer**:
+   - Pushes filter predicates down into Parquet and CSV readers (`predicate_pushdown.py`).
+   - Eliminates unreferenced column schema attributes (`projection_pushdown.py`).
+3. **Physical Streaming Operators**:
+   - Executes queries in streaming 65,536-row `RecordBatch` chunks using Apache Arrow zero-copy memory arrays.
+4. **NVMe Out-of-Core Memory Manager**:
+   - Monitors RAM allocation against configured memory ceilings (e.g. 50 MB RAM cap).
+   - Serializes intermediate batch buffers to disk using LZ4 Arrow IPC format when memory thresholds are reached.
+5. **Unified Telemetry Source of Truth**:
+   - Real-time backend `/api/engine/status` endpoint powering the React Web Studio with operator latency profiling and physical DAG visualization.

@@ -146,16 +146,46 @@ const DEFAULT_PLAN: PlanNode = {
   ],
 };
 
+const UNOPTIMIZED_PLAN: PlanNode = {
+  name: 'DataFrame Output (Sink)',
+  details: 'Sort [total_revenue DESC] -> Limit [20]',
+  children: [
+    {
+      name: 'AggregateNode (Group-By)',
+      details: 'Group: brand | Aggs: sum(price), count(price)',
+      children: [
+        {
+          name: 'FilterNode (Post-Scan Filter)',
+          details: "Evaluate: event_type == 'purchase' on 9 loaded columns (In-RAM)",
+          children: [
+            {
+              name: 'ScanCSVNode (Unoptimized Reader)',
+              details: 'Read Full Schema (9 columns, 5.67 GB into RAM)',
+              children: [],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 export const QueryPlanVisualizer: React.FC<QueryPlanVisualizerProps> = ({ telemetry }) => {
   const [selectedNodeInfo, setSelectedNodeInfo] = useState<any | null>(null);
+  const [planMode, setPlanMode] = useState<'optimized' | 'unoptimized'>('optimized');
 
   const queries = telemetry?.queries || [];
   const latestQuery = queries.length > 0 ? queries[queries.length - 1] : null;
-  const rawPlan = latestQuery && typeof latestQuery.plan === 'object' ? (latestQuery.plan as PlanNode) : DEFAULT_PLAN;
+  const targetPlan =
+    planMode === 'unoptimized'
+      ? UNOPTIMIZED_PLAN
+      : latestQuery && typeof latestQuery.plan === 'object'
+      ? (latestQuery.plan as PlanNode)
+      : DEFAULT_PLAN;
 
   const { nodes, edges } = useMemo(
-    () => flattenPlanToGraph(rawPlan, (info) => setSelectedNodeInfo(info)),
-    [rawPlan]
+    () => flattenPlanToGraph(targetPlan, (info) => setSelectedNodeInfo(info)),
+    [targetPlan]
   );
 
   return (
@@ -167,8 +197,21 @@ export const QueryPlanVisualizer: React.FC<QueryPlanVisualizerProps> = ({ teleme
             Interactive directed acyclic graph (DAG) representation of TitanFrame logical and physical execution trees.
           </p>
         </div>
-        <div className="plan-meta-badge">
-          <span>Target: {latestQuery ? latestQuery.id : 'Sample Query Plan'}</span>
+        <div className="header-actions">
+          <div className="subtab-navigation">
+            <button
+              className={`subtab-btn ${planMode === 'optimized' ? 'active' : ''}`}
+              onClick={() => setPlanMode('optimized')}
+            >
+              Optimized Physical DAG
+            </button>
+            <button
+              className={`subtab-btn ${planMode === 'unoptimized' ? 'active' : ''}`}
+              onClick={() => setPlanMode('unoptimized')}
+            >
+              Unoptimized Logical DAG
+            </button>
+          </div>
         </div>
       </div>
 

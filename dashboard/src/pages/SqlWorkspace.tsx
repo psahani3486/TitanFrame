@@ -203,6 +203,18 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
     URL.revokeObjectURL(url);
   };
 
+  const handleExportJSON = () => {
+    if (!queryResult || !queryResult.rows || queryResult.rows.length === 0) return;
+    const jsonStr = JSON.stringify(queryResult.rows, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `titanframe_query_export_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="page-container sql-workspace-page">
       <div className="page-header">
@@ -354,6 +366,9 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
                   />
                   <button className="btn btn-secondary" onClick={handleExportCSV}>
                     Export CSV
+                  </button>
+                  <button className="btn btn-secondary" onClick={handleExportJSON}>
+                    Export JSON
                   </button>
                   {onNavigateToDag && (
                     <button className="btn btn-primary" onClick={onNavigateToDag}>
