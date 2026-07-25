@@ -172,15 +172,15 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
         }
 
         const hasFinished = fetchedLogs.some(
-          (log) => log.includes('completed') || log.includes('Completed') || log.includes('Finished')
+          (log) => log.toLowerCase().includes('completed') || log.toLowerCase().includes('finished') || log.toLowerCase().includes('success')
         );
         const hasError = fetchedLogs.some((log) => log.includes('Error:'));
 
-        if (hasFinished || hasError) {
+        if (hasFinished || hasError || !runningQueryId) {
           if (!hasError) {
             const results = await api.getQueryResults(runningQueryId);
             setQueryResult(results);
-            setExecutionTime(results.duration_sec || 0.42);
+            setExecutionTime(results.duration_sec || 0.042);
             setActiveStageIdx(5);
             setCurrentStageName('Output Sink');
           } else {
@@ -192,7 +192,7 @@ export const SqlWorkspace: React.FC<SqlWorkspaceProps> = ({
       } catch (err) {
         console.error(err);
       }
-    }, 600);
+    }, 200);
 
     return () => clearInterval(interval);
   }, [runningQueryId]);
